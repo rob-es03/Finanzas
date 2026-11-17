@@ -41,3 +41,20 @@ Se instaló el scaffold en un directorio temporal con Node `24.19.0`, npm `11.17
 - Integridad transaccional. Comprobar transferencia completa o revertida, cuotas parciales y completas, reintentos idempotentes, concurrencia de pagos, y presupuesto por categoría y período sin sumar transferencias.
 - Auth de extremo a extremo en web y Android. Comprobar cancelación y retorno de OAuth, perfil único, sesión tras reinicio, expiración, renovación, recuperación según proveedor y limpieza de datos al cerrar sesión. [Google Sign-In de Supabase](https://supabase.com/docs/guides/auth/social-sign-in/auth-google), [Intercambio de ID token](https://supabase.com/docs/reference/javascript/auth-signinwithidtoken).
 - CI del PR con instalación desde lockfile, build, TypeScript, pruebas unitarias, pgTAP y pruebas de APK. Repetir escaneo de secretos sobre el historial completo y los artefactos de publicación.
+
+## Seguimiento tras reconectar Supabase · 2026-11-17
+
+La conexión **Crecimiento Nic** ya tiene acceso de lectura al proyecto `ujalaluhmtwevqhnzivo`. Este resultado sustituye al error de permisos descrito en la auditoría inicial.
+
+| Verificación | Resultado |
+| --- | --- |
+| Listado de migraciones | `{"migrations":[]}`. |
+| Listado de tablas en `public` | `{"tables":[]}`. |
+| Catálogo PostgreSQL (`pg_namespace`, `pg_class` y `pg_proc`) | `public` tiene 0 tablas, 0 vistas y 0 funciones. Los demás esquemas identificados corresponden a componentes de plataforma, entre ellos `auth` y `storage`. |
+| Supabase Advisors de seguridad y rendimiento | Ambas consultas devolvieron `lints: []`. El esquema financiero aún no existe en el proyecto consultado, por lo que estas consultas no validan RLS ni integridad financiera. |
+
+Se ejecutaron solo consultas de metadatos. No se leyeron registros de usuarios ni se aplicaron migraciones.
+
+La rama local `feat/T-003-auth-google` apunta al commit `db6802a`, que añade el scaffold Angular, Ionic y Capacitor, la plataforma Android y un cliente Supabase. El commit carece de `supabase/migrations/`. La rama tiene cambios locales en curso y se dejó intacta. La evidencia de compilación de la auditoría inicial corresponde al scaffold anterior. Sigue pendiente identificar el PR de GitHub.
+
+**Bloqueo de lanzamiento actualizado.** El proyecto accesible carece del esquema de finanzas. Para verificar T-002 y T-011 hacen falta las migraciones versionadas y un entorno aislado donde aplicarlas y ejecutar las pruebas de aislamiento y cálculos. La revisión de Google Sign-In y sesiones sigue pendiente.

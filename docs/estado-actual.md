@@ -37,3 +37,7 @@ Ninguna: todavía no hay código ejecutable. No se declara nada funcional.
 
 ## Próximos pasos
 T-001 (scaffold), T-002 (esquema y RLS) y T-010/T-020 en paralelo según `docs/tareas/`.
+
+## Seguimiento Supabase · 2026-11-17
+
+La conexión Crecimiento Nic ya permite consultar el proyecto. Se verificaron cero migraciones y cero tablas, vistas o funciones en public. Los asesores de seguridad y rendimiento devolvieron listas vacías. La rama local de Claude Code contiene el scaffold Ionic/Capacitor en db6802a. Siguen pendientes el PR y la validación de T-002 en un entorno aislado.
