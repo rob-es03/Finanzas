@@ -58,3 +58,13 @@ Se ejecutaron solo consultas de metadatos. No se leyeron registros de usuarios n
 La rama local `feat/T-003-auth-google` apunta al commit `db6802a`, que añade el scaffold Angular, Ionic y Capacitor, la plataforma Android y un cliente Supabase. El commit carece de `supabase/migrations/`. La rama tiene cambios locales en curso y se dejó intacta. La evidencia de compilación de la auditoría inicial corresponde al scaffold anterior. Sigue pendiente identificar el PR de GitHub.
 
 **Bloqueo de lanzamiento actualizado.** El proyecto accesible carece del esquema de finanzas. Para verificar T-002 y T-011 hacen falta las migraciones versionadas y un entorno aislado donde aplicarlas y ejecutar las pruebas de aislamiento y cálculos. La revisión de Google Sign-In y sesiones sigue pendiente.
+
+## Migración T-002 probada localmente · 2026-11-17
+
+Se encontró `20261117180000_auth_profiles_and_accounts.sql` como archivo sin seguimiento en el worktree de `feat/T-003-auth-google`. Ninguna rama tenía la migración en su historial al comenzar la revisión. Se ejecutó una copia exacta con SHA-256 `FAE693222A19E5DE846A62E6C6E7F50C85DD9281D0CB50235923DE7503EC20D7` en PostgreSQL 18.6, PGlite 0.5.16, con datos sintéticos. Se preparó solo el contrato mínimo de Auth y se concedieron privilegios de tabla para comprobar RLS. Los resultados cubren las políticas PostgreSQL y el almacenamiento, con validación de Supabase Auth, PostgREST y permisos efectivos de despliegue todavía pendiente.
+
+`node --test t002-local.spec.mjs` devolvió 10 pruebas superadas, incluidas nueve subpruebas. La migración aplicó desde cero, RLS quedó activa en las tres tablas, los usuarios A y B quedaron aislados en lectura y mutaciones, y el rol anónimo no vio filas. El registro creó un perfil y 12 categorías por usuario. Los saldos iniciales conservaron el signo, el cero predeterminado y la precisión `BIGINT`; PostgreSQL conservó exactamente `9007199254740993` centavos, fuera del rango seguro de JavaScript `number`. Falta validar el transporte de esos importes o aplicar un límite explícito antes de consumirlos en el cliente.
+
+**T-002 parcial.** La migración carece de siembra de cuentas, movimientos, transferencias, deudas, cuotas, presupuestos, recordatorios, lotes de importación y una vista o función para el saldo por cuenta. Se comprobó la suma exacta de saldos iniciales en PostgreSQL. Los cálculos de dominio restantes requieren las migraciones correspondientes. Producción quedó fuera de esta ejecución.
+
+Para reproducir, copiar `supabase/tests/t002-local.spec.mjs` y la migración (como `migration.sql`) a un directorio temporal, instalar `npm install --no-save --ignore-scripts @electric-sql/pglite@0.5.16` y ejecutar `node --test t002-local.spec.mjs`.
