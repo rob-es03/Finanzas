@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finanzas Personales | Nicolle Rivera</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+    .card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  </style>
+</head>
+<body class="min-h-screen pb-12">
+
+  <!-- Header -->
+  <header class="bg-slate-900 text-white py-5 px-4 sm:px-8 shadow-md">
+    <div class="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="bg-emerald-500 text-slate-950 font-bold px-2.5 py-0.5 rounded-md text-xs uppercase tracking-wider">Control Personal</span>
+          <span class="text-slate-400 text-xs" id="currentDateLabel"></span>
+        </div>
+        <h1 class="text-2xl font-bold mt-1">Finanzas de Nicolle Rivera</h1>
+        <p class="text-slate-400 text-sm">Registro de quincenas, bonos, gastos esenciales y control de deudas</p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button onclick="exportCSV()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium px-3.5 py-2.5 rounded-lg border border-slate-700 transition flex items-center gap-2">
+          <i class="fa-solid fa-file-csv text-emerald-400"></i> Exportar Excel/CSV
+        </button>
+        <button onclick="clearAllData()" class="bg-rose-950/60 hover:bg-rose-900/70 text-rose-200 text-xs font-medium px-3.5 py-2.5 rounded-lg border border-rose-800/60 transition flex items-center gap-2">
+          <i class="fa-solid fa-trash"></i> Limpiar Todo
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 sm:px-8 mt-6 space-y-6">
+
+    <!-- Filtro de Mes -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 card p-4">
+      <div class="flex items-center gap-2 text-sm font-medium text-slate-700">
+        <i class="fa-regular fa-calendar text-indigo-600"></i>
+        <span>Período visualizado:</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <input type="month" id="monthFilter" onchange="renderAll()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        <button onclick="setCurrentMonth()" class="text-xs bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-medium px-3 py-2 rounded-lg transition">Mes Actual</button>
+      </div>
+    </div>
+
+    <!-- Tarjetas de Resumen -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="card p-5 border-l-4 border-l-emerald-500">
+        <div class="flex items-center justify-between text-slate-500 text-xs font-semibold uppercase">
+          <span>Ingresos del Mes</span>
+          <i class="fa-solid fa-arrow-trend-up text-emerald-500 text-base"></i>
+        </div>
+        <p class="text-2xl font-bold text-slate-900 mt-2" id="totalIncome">$0.00</p>
+        <p class="text-xs text-slate-400 mt-1" id="incomeCountLabel">0 registros de entrada</p>
+      </div>
+
+      <div class="card p-5 border-l-4 border-l-rose-500">
+        <div class="flex items-center justify-between text-slate-500 text-xs font-semibold uppercase">
+          <span>Gastos y Pagos</span>
+          <i class="fa-solid fa-arrow-trend-down text-rose-500 text-base"></i>
+        </div>
+        <p class="text-2xl font-bold text-slate-900 mt-2" id="totalExpense">$0.00</p>
+        <p class="text-xs text-slate-400 mt-1" id="expenseCountLabel">0 registros de salida</p>
+      </div>
+
+      <div class="card p-5 border-l-4 border-l-indigo-600">
+        <div class="flex items-center justify-between text-slate-500 text-xs font-semibold uppercase">
+          <span>Saldo Libre Disponible</span>
+          <i class="fa-solid fa-wallet text-indigo-600 text-base"></i>
+        </div>
+        <p class="text-2xl font-bold text-indigo-700 mt-2" id="netBalance">$0.00</p>
+        <p class="text-xs text-slate-400 mt-1" id="savingsRateLabel">Margen libre: 0%</p>
+      </div>
+
+      <div class="card p-5 border-l-4 border-l-amber-500">
+        <div class="flex items-center justify-between text-slate-500 text-xs font-semibold uppercase">
+          <span>Saldos por Cuenta</span>
+          <i class="fa-solid fa-building-columns text-amber-500 text-base"></i>
+        </div>
+        <div class="mt-2 space-y-1 text-xs" id="accountBalances">
+          <div class="flex justify-between"><span>Banco Bolivariano:</span><span class="font-semibold">$0.00</span></div>
+          <div class="flex justify-between"><span>Produbanco:</span><span class="font-semibold">$0.00</span></div>
+          <div class="flex justify-between"><span>Efectivo:</span><span class="font-semibold">$0.00</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Formulario y Gráfico -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- Formulario de Registro -->
+      <div class="lg:col-span-5 card p-6">
+        <h2 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+          <i class="fa-solid fa-circle-plus text-indigo-600"></i> Registrar Movimiento
+        </h2>
+
+        <!-- Selector Tipo -->
+        <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl mb-4">
+          <button type="button" id="btnTypeIncome" onclick="setFormType('income')" class="py-2 text-sm font-semibold rounded-lg bg-emerald-600 text-white shadow-sm transition">
+            + Ingreso
+          </button>
+          <button type="button" id="btnTypeExpense" onclick="setFormType('expense')" class="py-2 text-sm font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition">
+            - Gasto / Pago
+          </button>
+        </div>
+
+        <!-- Botones Rápidos -->
+        <div class="mb-4">
+          <p class="text-xs font-medium text-slate-500 mb-2">Atajos rápidos:</p>
+          <div class="flex flex-wrap gap-1.5" id="quickButtons"></div>
+        </div>
+
+        <form id="txForm" onsubmit="addTransaction(event)" class="space-y-3.5">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Descripción</label>
+            <input type="text" id="txDesc" required placeholder="Ej: Quincena 15, Bono laboral, Arriendo..." class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Monto (USD $)</label>
+              <input type="number" id="txAmount" step="0.01" min="0.01" required placeholder="0.00" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Fecha</label>
+              <input type="date" id="txDate" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Categoría</label>
+              <select id="txCategory" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">Cuenta</label>
+              <select id="txAccount" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="Banco Bolivariano">Banco Bolivariano</option>
+                <option value="Produbanco">Produbanco</option>
+                <option value="Efectivo">Efectivo</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" id="submitBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-xl shadow-sm transition mt-2">
+            Guardar Ingreso
+          </button>
+        </form>
+      </div>
+
+      <!-- Gráfico de Distribución -->
+      <div class="lg:col-span-7 card p-6 flex flex-col justify-between">
+        <div>
+          <h2 class="text-lg font-bold text-slate-900 mb-1">Distribución del Mes</h2>
+          <p class="text-xs text-slate-500 mb-4">Comparativa entre ingresos totales y categorías de gastos/pagos</p>
+        </div>
+        <div class="relative h-64 w-full">
+          <canvas id="financeChart"></canvas>
+        </div>
+        <div class="mt-4 bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-600 flex items-start gap-2">
+          <i class="fa-solid fa-shield-halved text-indigo-600 mt-0.5"></i>
+          <span><strong>Consejo de protección:</strong> Registra aquí tus ingresos en Banco Bolivariano o Efectivo para mantener tus gastos esenciales ($170 arriendo, luz e internet) blindados frente a débitos automáticos.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tabla de Historial -->
+    <section class="card p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <h2 class="text-lg font-bold text-slate-900">Historial de Movimientos</h2>
+        <div class="flex flex-wrap gap-2">
+          <input type="text" id="searchInput" oninput="renderTable()" placeholder="Buscar movimiento..." class="border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          <select id="typeFilter" onchange="renderTable()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="all">Todos los movimientos</option>
+            <option value="income">Solo Ingresos</option>
+            <option value="expense">Solo Gastos / Pagos</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
+              <th class="py-3 px-2">Fecha</th>
+              <th class="py-3 px-2">Descripción</th>
+              <th class="py-3 px-2">Categoría</th>
+              <th class="py-3 px-2">Cuenta</th>
+              <th class="py-3 px-2 text-right">Monto</th>
+              <th class="py-3 px-2 text-center">Acción</th>
+            </tr>
+          </thead>
+          <tbody id="txTableBody" class="divide-y divide-slate-100 text-sm"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = 'nicolle_finanzas_v2';
+    let currentFormType = 'income';
+    let chartInstance = null;
+
+    const CATEGORIES = {
+      income: ['Sueldo Quincenal', 'Bono / Utilidades', 'Ventas / Extra', 'Reembolso', 'Otros Ingresos'],
+      expense: ['Arriendo y Servicios', 'Alimentación y Transporte', 'Pago Tarjeta Diners', 'Cuota Produbanco', 'Deprati / Otros Créditos', 'Salud / Personal', 'Otros Gastos']
+    };
+
+    const QUICK_PRESETS = {
+      income: [
+        { label: 'Quincena $300', desc: 'Sueldo Quincenal', amount: 300, cat: 'Sueldo Quincenal', acc: 'Banco Bolivariano' },
+        { label: 'Bono Laboral', desc: 'Bono Extra', amount: 850, cat: 'Bono / Utilidades', acc: 'Banco Bolivariano' }
+      ],
+      expense: [
+        { label: 'Arriendo $170', desc: 'Pago de Arriendo', amount: 170, cat: 'Arriendo y Servicios', acc: 'Efectivo' },
+        { label: 'Luz $30', desc: 'Planilla de Luz', amount: 30, cat: 'Arriendo y Servicios', acc: 'Banco Bolivariano' },
+        { label: 'Internet $23', desc: 'Servicio de Internet', amount: 23, cat: 'Arriendo y Servicios', acc: 'Banco Bolivariano' },
+        { label: 'Cuota Produbanco $70', desc: 'Cuota Refinanciada Produbanco', amount: 70, cat: 'Cuota Produbanco', acc: 'Produbanco' }
+      ]
+    };
+
+    function getTransactions() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        return [];
+      }
+      return JSON.parse(raw);
+    }
+
+    function saveTransactions(list) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    }
+
+    function setCurrentMonth() {
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
+      document.getElementById('monthFilter').value = `${yyyy}-${mm}`;
+      document.getElementById('txDate').value = `${yyyy}-${mm}-${dd}`;
+      document.getElementById('currentDateLabel').textContent = now.toLocaleDateString('es-EC', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      renderAll();
+    }
+
+    function setFormType(type) {
+      currentFormType = type;
+      const btnInc = document.getElementById('btnTypeIncome');
+      const btnExp = document.getElementById('btnTypeExpense');
+      const subBtn = document.getElementById('submitBtn');
+
+      if (type === 'income') {
+        btnInc.className = 'py-2 text-sm font-semibold rounded-lg bg-emerald-600 text-white shadow-sm transition';
+        btnExp.className = 'py-2 text-sm font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition';
+        subBtn.className = 'w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-xl shadow-sm transition mt-2';
+        subBtn.textContent = 'Guardar Ingreso';
+      } else {
+        btnExp.className = 'py-2 text-sm font-semibold rounded-lg bg-rose-600 text-white shadow-sm transition';
+        btnInc.className = 'py-2 text-sm font-semibold rounded-lg text-slate-600 hover:text-slate-900 transition';
+        subBtn.className = 'w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold py-2.5 rounded-xl shadow-sm transition mt-2';
+        subBtn.textContent = 'Guardar Gasto / Pago';
+      }
+
+      const catSelect = document.getElementById('txCategory');
+      catSelect.innerHTML = CATEGORIES[type].map(c => `<option value="${c}">${c}</option>`).join('');
+
+      const quickDiv = document.getElementById('quickButtons');
+      quickDiv.innerHTML = QUICK_PRESETS[type].map((p, idx) => `
+        <button type="button" onclick="applyPreset(${idx})" class="text-xs bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 px-2.5 py-1 rounded-md border border-slate-200 transition">
+          ${p.label}
+        </button>
+      `).join('');
+    }
+
+    function applyPreset(index) {
+      const preset = QUICK_PRESETS[currentFormType][index];
+      document.getElementById('txDesc').value = preset.desc;
+      document.getElementById('txAmount').value = preset.amount;
+      document.getElementById('txCategory').value = preset.cat;
+      document.getElementById('txAccount').value = preset.acc;
+    }
+
+    function addTransaction(e) {
+      e.preventDefault();
+      const desc = document.getElementById('txDesc').value.trim();
+      const amount = parseFloat(document.getElementById('txAmount').value);
+      const date = document.getElementById('txDate').value;
+      const category = document.getElementById('txCategory').value;
+      const account = document.getElementById('txAccount').value;
+
+      if (!desc || isNaN(amount) || amount <= 0) return;
+
+      const list = getTransactions();
+      list.unshift({
+        id: Date.now(),
+        type: currentFormType,
+        desc,
+        amount,
+        date,
+        category,
+        account
+      });
+      saveTransactions(list);
+      document.getElementById('txDesc').value = '';
+      document.getElementById('txAmount').value = '';
+      renderAll();
+    }
+
+    function deleteTransaction(id) {
+      const list = getTransactions().filter(t => t.id !== id);
+      saveTransactions(list);
+      renderAll();
+    }
+
+    function getFilteredByMonth() {
+      const month = document.getElementById('monthFilter').value;
+      const all = getTransactions();
+      if (!month) return all;
+      return all.filter(t => t.date && t.date.startsWith(month));
+    }
+
+    function renderAll() {
+      const list = getFilteredByMonth();
+      const all = getTransactions();
+
+      const incomes = list.filter(t => t.type === 'income');
+      const expenses = list.filter(t => t.type === 'expense');
+
+      const sumInc = incomes.reduce((acc, t) => acc + t.amount, 0);
+      const sumExp = expenses.reduce((acc, t) => acc + t.amount, 0);
+      const net = sumInc - sumExp;
+      const rate = sumInc > 0 ? Math.max(0, ((net / sumInc) * 100)).toFixed(1) : '0.0';
+
+      document.getElementById('totalIncome').textContent = `$${sumInc.toFixed(2)}`;
+      document.getElementById('incomeCountLabel').textContent = `${incomes.length} registro(s) de entrada`;
+      document.getElementById('totalExpense').textContent = `$${sumExp.toFixed(2)}`;
+      document.getElementById('expenseCountLabel').textContent = `${expenses.length} registro(s) de salida`;
+
+      const netEl = document.getElementById('netBalance');
+      netEl.textContent = `$${net.toFixed(2)}`;
+      netEl.className = `text-2xl font-bold mt-2 ${net >= 0 ? 'text-indigo-700' : 'text-rose-600'}`;
+      document.getElementById('savingsRateLabel').textContent = `Margen libre: ${rate}%`;
+
+      const accounts = { 'Banco Bolivariano': 0, 'Produbanco': 0, 'Efectivo': 0 };
+      all.forEach(t => {
+        if (accounts[t.account] !== undefined) {
+          accounts[t.account] += (t.type === 'income' ? t.amount : -t.amount);
+        }
+      });
+
+      document.getElementById('accountBalances').innerHTML = Object.entries(accounts).map(([name, val]) => `
+        <div class="flex justify-between">
+          <span class="text-slate-600">${name}:</span>
+          <span class="font-semibold ${val < 0 ? 'text-rose-600' : 'text-slate-900'}">$${val.toFixed(2)}</span>
+        </div>
+      `).join('');
+
+      renderTable();
+      renderChart(expenses, sumInc);
+    }
+
+    function renderTable() {
+      const list = getFilteredByMonth();
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const typeF = document.getElementById('typeFilter').value;
+
+      const filtered = list.filter(t => {
+        const matchesType = typeF === 'all' || t.type === typeF;
+        const matchesText = t.desc.toLowerCase().includes(search) || t.category.toLowerCase().includes(search) || t.account.toLowerCase().includes(search);
+        return matchesType && matchesText;
+      });
+
+      const tbody = document.getElementById('txTableBody');
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-400 text-sm">Aún no hay movimientos registrados. Usa el formulario para agregar tu primer ingreso.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(t => `
+        <tr class="hover:bg-slate-50 transition">
+          <td class="py-3 px-2 text-xs text-slate-500 whitespace-nowrap">${t.date}</td>
+          <td class="py-3 px-2 font-medium text-slate-800">${t.desc}</td>
+          <td class="py-3 px-2"><span class="text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md">${t.category}</span></td>
+          <td class="py-3 px-2 text-xs text-slate-600">${t.account}</td>
+          <td class="py-3 px-2 text-right font-bold whitespace-nowrap ${t.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}">
+            ${t.type === 'income' ? '+' : '-'}$${t.amount.toFixed(2)}
+          </td>
+          <td class="py-3 px-2 text-center">
+            <button onclick="deleteTransaction(${t.id})" class="text-slate-400 hover:text-rose-600 transition" title="Eliminar">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderChart(expenses, totalIncome) {
+      const ctx = document.getElementById('financeChart').getContext('2d');
+      const grouped = {};
+      expenses.forEach(e => {
+        grouped[e.category] = (grouped[e.category] || 0) + e.amount;
+      });
+
+      const totalExp = Object.values(grouped).reduce((a, b) => a + b, 0);
+      const freeMoney = Math.max(0, totalIncome - totalExp);
+
+      const labels = [...Object.keys(grouped)];
+      const data = [...Object.values(grouped)];
+      if (freeMoney > 0 || labels.length === 0) {
+        labels.push('Saldo Libre Disponible');
+        data.push(freeMoney);
+      }
+
+      if (chartInstance) chartInstance.destroy();
+
+      chartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels,
+          datasets: [{
+            data,
+            backgroundColor: ['#6366f1', '#f43f5e', '#f59e0b', '#8b5cf6', '#06b6d4', '#ec4899', '#10b981'],
+            borderWidth: 2,
+            borderColor: '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 } } }
+          }
+        }
+      });
+    }
+
+    function exportCSV() {
+      const list = getTransactions();
+      const headers = ['Fecha', 'Tipo', 'Descripcion', 'Categoria', 'Cuenta', 'Monto'];
+      const rows = list.map(t => [
+        t.date,
+        t.type === 'income' ? 'Ingreso' : 'Gasto',
+        `"${t.desc.replace(/"/g, '""')}"`,
+        `"${t.category}"`,
+        `"${t.account}"`,
+        t.amount.toFixed(2)
+      ]);
+      const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `finanzas_nicolle_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function clearAllData() {
+      if (confirm('¿Segura que deseas borrar todos los registros para empezar desde cero?')) {
+        saveTransactions([]);
+        renderAll();
+      }
+    }
+
+    setFormType('income');
+    setCurrentMonth();
+  </script>
+</body>
+</html>
