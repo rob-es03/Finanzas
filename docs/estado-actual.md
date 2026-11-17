@@ -1,5 +1,11 @@
 # Estado actual
 
+## Verificación de Codex · 2026-11-17
+
+La copia local contiene un scaffold Angular sin seguimiento en Git. La compilación, los dos chequeos TypeScript y las dos pruebas del scaffold pasaron en una copia temporal. Pasaron dos pruebas adicionales del prototipo. La auditoría de la resolución temporal reportó 12 paquetes de desarrollo con severidad alta y cero hallazgos con `--omit=dev`.
+
+Sigue pendiente identificar el PR de Claude Code. Las conexiones disponibles de Supabase devolvieron un error de permisos al consultar las migraciones del proyecto indicado. El estado de lanzamiento queda bloqueado hasta verificar el aislamiento, las funciones financieras y el flujo de autenticación en la versión candidata. [Informe de auditoría](auditorias/2026-11-auditoria-prototipo.md).
+
 Actualizado: 2026-11-17 · por Claude Code (Fase 0, sincronización de contexto).
 
 ## Lo que existe realmente
