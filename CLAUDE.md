@@ -32,3 +32,21 @@ Ingeniero principal y coordinador técnico: arquitectura, backend Supabase, migr
 
 ## Comandos
 Se documentarán aquí cuando el scaffold exista (T-001). Hasta entonces, no inventar comandos.
+
+## Actualización 2026-11-17 — integración
+- GitHub es la fuente única de verdad: rama + pull request, nunca commit directo a `main` ni fusión automática.
+- Antes de tocar Supabase: consultar el estado remoto del proyecto `ujalaluhmtwevqhnzivo` y pedir autorización. Verificado el 2026-11-17: base vacía.
+- La dirección visual la gobierna `docs/design/DIRECTIVA-DISENO.md`. Mi papel ahí es garantizar que la implementación respete la arquitectura, la lógica financiera y las integraciones; no defino la identidad visual.
+- Si otro agente deja código que no compila por una dependencia ausente, instalo la dependencia en lugar de editar su código.
+
+## Comandos reales (verificados)
+```
+npm --prefix apps/mobile install
+npm --prefix apps/mobile run start          # servidor de desarrollo en :4200
+npx --prefix apps/mobile ng build           # build web
+npx --prefix apps/mobile ng lint            # lint (hoy: 3 errores, ver estado-actual.md)
+npx --prefix apps/mobile ng test --watch=false
+cd apps/mobile && npx cap sync android      # sincroniza la plataforma Android
+cd apps/mobile/android && ./gradlew assembleDebug   # requiere JDK 17+ y Android SDK
+```
+Antes del primer build: copiar `apps/mobile/src/environments/environment.example.ts` a `environment.ts` y rellenar la anon key.

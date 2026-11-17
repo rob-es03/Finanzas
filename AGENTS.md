@@ -74,3 +74,17 @@ Y actualiza `docs/estado-actual.md`.
 
 ## 8. Qué hacer ante una contradicción
 No inventar. Registrar la contradicción en `docs/decisiones.md` como pregunta abierta, elegir la opción más conservadora, marcarla como **supuesto** y pedir confirmación humana.
+
+---
+
+## 9. GitHub como fuente única de verdad (desde 2026-11-17)
+El repositorio privado de GitHub manda sobre cualquier copia local. Nadie trabaja sobre `main` directamente; todo entra por rama y pull request, sin fusión automática. Si una copia local diverge, se reconcilia contra GitHub antes de seguir.
+
+## 10. Dirección visual
+`docs/design/DIRECTIVA-DISENO.md` gobierna la identidad del producto (dirección **Modern Banking**, identidad original, WCAG 2.2 AA). `DESIGN_SYSTEM.md`, `SCREEN_SPECIFICATIONS.md`, `COMPONENT_INVENTORY.md` y `UX_DECISIONS.md` son su desarrollo. **Ningún agente cambia la identidad visual global de forma unilateral.** No se usan colores, márgenes, tamaños ni estilos arbitrarios cuando existe un token aprobado. No se modifican rutas existentes sin comprobar dependencias y acordar la migración.
+
+## 11. Secretos
+Antes de publicar nada: auditoría de secretos. Quedan fuera del repositorio `.env`, `environment.ts`, keystores y archivos de firma Android, `google-services.json`, tokens y claves privadas; la plantilla pública es `.env.example` y `environment.example.ts`. Un token compartido por chat o por cualquier canal de conversación se considera comprometido y debe revocarse.
+
+## 12. Supabase
+Proyecto `ujalaluhmtwevqhnzivo`. **Antes de aplicar una migración se consulta siempre el estado remoto**; aplicarla requiere autorización humana explícita. Estado verificado el 2026-11-17: 0 migraciones, 0 tablas.
