@@ -1,0 +1,45 @@
+<ion-content [fullscreen]="true" class="error-container">
+  <div class="error-content">
+    <div class="icon-wrapper">
+      <div class="error-icon-circle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+        </svg>
+      </div>
+    </div>
+
+    <h1 class="error-title">No pudimos completar el acceso</h1>
+    <p class="error-subtitle">
+      No te preocupes, tus datos no han sido modificados ni comprometidos.
+    </p>
+
+    <!-- Caja de detalle del error -->
+    <div class="error-box border-l-danger">
+      <div class="error-box-header">
+        <span class="label">Diagnóstico técnico:</span>
+      </div>
+      <p class="error-box-message">{{ errorDetail() }}</p>
+    </div>
+
+    <!-- Sugerencias de solución -->
+    <div class="suggestions-card">
+      <h3>Sugerencias rápidas:</h3>
+      <ul>
+        <li>Verifica que tienes conexión a internet estable.</li>
+        <li>Si cancelaste la ventana emergente de Google, intenta de nuevo.</li>
+        <li>Asegúrate de permitir cookies y ventanas emergentes en tu navegador.</li>
+      </ul>
+    </div>
+
+    <!-- Botones de Acción -->
+    <footer class="action-footer">
+      <button type="button" class="btn-retry" (click)="retryLogin()">
+        <span>Intentar de nuevo</span>
+      </button>
+
+      <button type="button" class="btn-secondary" (click)="goToWelcome()">
+        <span>Volver a la bienvenida</span>
+      </button>
+    </footer>
+  </div>
+</ion-content>

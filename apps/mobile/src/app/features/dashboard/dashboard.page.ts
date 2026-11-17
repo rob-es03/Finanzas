@@ -1,18 +1,34 @@
-import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import {
+  IonButton,
+  IonButtons,
   IonContent,
   IonHeader,
+  IonIcon,
   IonTitle,
   IonToolbar,
 } from '@ionic/angular';
+import { AuthService } from '../../core/auth/auth.service';
 
-/**
- * Pantalla vacía de arranque (T-001).
- * El contenido real lo definen T-020/T-021 (Antigravity) y la capa de datos (T-002+).
- */
 @Component({
   selector: 'app-dashboard',
-  imports: [IonHeader, IonToolbar, IonTitle, IonContent],
+  standalone: true,
+  imports: [
+    CommonModule,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonButtons,
+    IonButton,
+  ],
   templateUrl: './dashboard.page.html',
 })
-export class DashboardPage {}
+export class DashboardPage {
+  readonly authService = inject(AuthService);
+
+  async handleSignOut(): Promise<void> {
+    await this.authService.signOut();
+  }
+}

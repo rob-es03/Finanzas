@@ -1,4 +1,114 @@
-/* Estilos globales.
-   Las hojas de Ionic se cargan desde angular.json (styles[]).
-   El design system (tokens, tema claro/oscuro) es propiedad de Antigravity (T-020). */
+/* Estilos globales y utilidades del Design System
+   Propiedad de Antigravity (T-020) */
 @use './theme/variables.scss';
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--ion-font-family);
+  background-color: var(--app-bg-color);
+  color: var(--app-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Tarjeta base del Design System */
+.app-card {
+  background: var(--app-surface-color);
+  border: 1px solid var(--app-border-color);
+  border-radius: var(--app-radius-md);
+  box-shadow: var(--app-shadow-card);
+  padding: 1.25rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &.border-l-primary {
+    border-left: 4px solid var(--ion-color-primary);
+  }
+
+  &.border-l-success {
+    border-left: 4px solid var(--ion-color-success);
+  }
+
+  &.border-l-danger {
+    border-left: 4px solid var(--ion-color-danger);
+  }
+
+  &.border-l-warning {
+    border-left: 4px solid var(--ion-color-warning);
+  }
+}
+
+/* Botón Oficial Google Sign-In */
+.google-sign-in-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 50px;
+  padding: 12px 20px;
+  background-color: #ffffff;
+  color: #1f1f1f;
+  border: 1px solid #747775;
+  border-radius: 24px;
+  font-family: 'Inter', -apple-system, Roboto, sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: background-color 0.2s, box-shadow 0.2s, border-color 0.2s;
+  outline: none;
+
+  &:hover:not(:disabled) {
+    background-color: #f8fafd;
+    border-color: #0b57d0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  }
+
+  &:active:not(:disabled) {
+    background-color: #e8f0fe;
+    transform: scale(0.99);
+  }
+
+  &:focus-visible {
+    box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.35);
+  }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+
+  .google-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+}
+
+/* Spinner animado accesible */
+.app-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(79, 70, 229, 0.2);
+  border-top-color: var(--ion-color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Accesibilidad táctil recomendada para móviles (mínimo 48px) */
+.touch-target {
+  min-height: 48px;
+  min-width: 48px;
+}

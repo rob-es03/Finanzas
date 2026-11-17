@@ -1,9 +1,35 @@
-<ion-header>
-  <ion-toolbar>
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary">
     <ion-title>Finanzas</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="handleSignOut()" fill="clear" color="light">
+        Cerrar sesión
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-  <p>Proyecto base listo. Sin funcionalidad todavía.</p>
+  <div style="max-width: 600px; margin: 0 auto;">
+    <div class="app-card border-l-primary" style="margin-bottom: 1.5rem;">
+      <h2 style="margin: 0 0 0.5rem; font-size: 1.25rem;">
+        Bienvenido, {{ authService.profile()?.fullName || 'Usuario' }}
+      </h2>
+      <p style="margin: 0; color: var(--app-text-secondary); font-size: 0.9rem;">
+        Correo: {{ authService.profile()?.email }}
+      </p>
+      <p style="margin: 4px 0 0; color: var(--app-text-secondary); font-size: 0.9rem;">
+        Moneda principal: <strong>{{ authService.profile()?.currency || 'USD' }}</strong>
+      </p>
+    </div>
+
+    <div class="app-card border-l-success">
+      <h3 style="margin: 0 0 0.5rem; font-size: 1rem; color: var(--ion-color-success);">
+        ✓ Autenticación y Onboarding Completados
+      </h3>
+      <p style="margin: 0; font-size: 0.85rem; color: var(--app-text-secondary);">
+        Sesión persistida de forma segura mediante Supabase Auth y Capacitor Storage.
+      </p>
+    </div>
+  </div>
 </ion-content>
