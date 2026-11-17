@@ -30,4 +30,6 @@ Formato: ID · fecha · decisión · motivo · estado · origen.
 2026-11-17 · Se inicializó un repositorio Git local en la carpeta del proyecto porque no existía ninguno. Aún no hay remoto; los pull requests requieren crear el repositorio en GitHub. **Provisional**, pendiente de P-05.
 
 ## Preguntas abiertas
+
+- 2026-11-17 · **P-05, evidencia pendiente.** Se informó que el código de Claude Code está en GitHub. La copia local carece de remoto y las búsquedas no identificaron un PR verificable. **Supuesto provisional:** tratar el scaffold local como una copia independiente de la versión candidata hasta confirmar el enlace del PR y su SHA. El identificador de Supabase es conocido y la consulta de migraciones sigue bloqueada por permisos.
 Ver sección 7 de `docs/requisitos.md` (P-01 a P-05). No se implementa nada que dependa de ellas sin respuesta.
