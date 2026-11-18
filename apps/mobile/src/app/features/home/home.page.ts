@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Movement } from '@finanzas/contracts';
 import { IonContent } from '@ionic/angular';
@@ -21,9 +21,14 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
 })
-export class HomePage {
+export class HomePage implements OnInit {
   readonly stateService = inject(FinancialStateService);
   private readonly router = inject(Router);
+
+  /** Trae saldos, categorías, movimientos y vencimientos desde Supabase. */
+  async ngOnInit(): Promise<void> {
+    await this.stateService.load();
+  }
 
   // Tab activo estilo Revolut (Cuentas, Analítica, Tarjetas, Metas)
   activeTab: 'accounts' | 'analytics' | 'cards' | 'vaults' = 'accounts';

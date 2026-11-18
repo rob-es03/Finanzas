@@ -9,10 +9,10 @@
           <span class="status-indicator" aria-hidden="true"></span>
         </button>
 
-        <!-- Indicador central discreto de datos de demostración -->
-        <span class="mock-tag" aria-label="Indicador: datos ficticios de demostración">
-          Demo
-        </span>
+        <!-- El distintivo «Demo» desaparece: los datos ya vienen de Supabase. -->
+        @if (stateService.hasPartialError()) {
+          <span class="mock-tag" role="status">Datos incompletos</span>
+        }
 
         <!-- Acciones superiores derechas: Tendencias + Campana -->
         <div class="header-right-actions">

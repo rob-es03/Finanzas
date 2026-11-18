@@ -179,3 +179,21 @@ body {
     flex-shrink: 0;
   }
 }
+
+/**
+ * Utilidad para texto solo de lector de pantalla.
+ * Se usaba en las plantillas (`class="sr-only"`) sin estar definida en ninguna
+ * parte, así que la etiqueta del selector de cuenta se dibujaba encima del
+ * valor. Definida aquí una vez, sirve para todas las pantallas.
+ */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

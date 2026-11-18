@@ -168,3 +168,23 @@ Implementado sobre lo que Codex especificó en `docs/auth/ACCESO-CORREO-RESEND.m
 **Verificado en navegador**: las cuatro pantallas renderizan; credenciales incorrectas devuelven «Correo o contraseña incorrectos.» desde Supabase real; `reset-password` sin enlace válido muestra el aviso de caducado. Build ✅, `tsc` ✅, pruebas **13/13** ✅, lint **21 errores** (los de T-032, ninguno nuevo).
 
 **Lo que NO está probado**: la entrega de correos. El proyecto usa el **SMTP por defecto de Supabase**, limitado a **2 correos por hora** y que solo entrega a miembros del proyecto. Sin configurar Resend, el alta por correo de cualquier otra persona no recibirá la confirmación. Ver `docs/auth/ACCESO-CORREO-RESEND.md`.
+
+### Inicio conectado a datos reales · 2026-11-17
+
+Integré en mi rama el rediseño de Inicio y Movimientos de Antigravity (`ui/T-030-saldo-claro`, commit `03d7a4b`) y lo conecté a Supabase. Antes era una maqueta: el estado venía de un servicio con cuentas, categorías y movimientos escritos a mano.
+
+**Lo que cambié**
+- Nuevo `data/finance.repository.ts`: cuentas desde la vista `account_balances`, categorías, movimientos, próximos pagos, y altas, ediciones y bajas de movimientos.
+- `data/financial-state.service.ts` pasa a leer de la base. Mantiene la misma API pública, así que las pantallas no cambiaron.
+- Fuera los datos de ejemplo: incluían de nuevo los bancos y acreedores reales de una persona (Banco Bolivariano, Produbanco, Diners), ahora en un repositorio público.
+- Los saldos los calcula PostgreSQL en `account_balances`; el cliente ya no suma por su cuenta.
+- Desaparece el distintivo «Demo»; en su lugar se avisa solo si una parte de la carga falla.
+
+**Tres defectos encontrados al probarlo**
+1. **No se podía guardar ningún movimiento.** `quick-record-modal` hacía `this.amountInput.replace(...)`, pero el campo es `<input type="number">` y ngModel entrega un **número**: lanzaba `TypeError` antes del `try`, sin mensaje y sin guardar. Corregido normalizando el valor.
+2. **`.sr-only` no estaba definida** en ninguna hoja, así que la etiqueta «Seleccionar cuenta» se dibujaba encima del valor del selector. Añadida en `styles.scss`.
+3. **La fusión automática dejó `home` y `movements` sin `authGuard`.** Resuelto a mano en `app.routes.ts`.
+
+**Verificado de extremo a extremo**: con sesión real, registrar un gasto de 12,50 USD lo guarda en `transactions`, la vista `account_balances` devuelve `-1250` centavos y la pantalla muestra −$12,50, el movimiento en la lista y el resumen mensual en déficit. Queda un movimiento de prueba llamado «Prueba de integracion» que se puede borrar desde la propia aplicación.
+
+**Pendiente**: los atajos rápidos quedan vacíos a propósito (los del prototipo eran los pagos de una persona concreta); R-03 pide que cada usuario configure los suyos.

@@ -21,7 +21,8 @@ export class QuickRecordModalComponent implements OnInit {
 
   // Campos del formulario
   type: MovementType = 'expense';
-  amountInput = '';
+  /** Cadena o número: ngModel sobre <input type="number"> entrega número. */
+  amountInput: string | number = '';
   description = '';
   selectedAccountId = '';
   selectedCategoryId = '';
@@ -48,9 +49,13 @@ export class QuickRecordModalComponent implements OnInit {
       const today = new Date().toISOString().split('T')[0];
       this.date = today;
 
-      // Si hay una cuenta activa específica seleccionada, usarla; si no, la primera cuenta bancaria
+      // Si hay una cuenta activa específica seleccionada, usarla; si no, la
+      // primera cuenta real. Se filtra «all» por identificador en vez de
+      // confiar en que ocupe la posición 0: ahora la lista viene de la base y
+      // su orden depende de los datos, no de un array escrito a mano.
       const activeAcc = this.stateService.selectedAccountId();
-      this.selectedAccountId = activeAcc !== 'all' ? activeAcc : this.stateService.accounts()[1]?.id || '';
+      const primeraReal = this.stateService.accounts().find((a) => a.id !== 'all')?.id ?? '';
+      this.selectedAccountId = activeAcc !== 'all' ? activeAcc : primeraReal;
       this.updateDefaultCategory();
     }
   }
@@ -93,8 +98,12 @@ export class QuickRecordModalComponent implements OnInit {
   async save(): Promise<void> {
     if (this.isSaving) return;
 
-    // Validaciones
-    const parsedAmount = parseFloat(this.amountInput.replace(/,/g, ''));
+    // Validaciones.
+    // `amountInput` está enlazado a un <input type="number">, así que ngModel
+    // entrega un número, no una cadena: llamar a .replace() lanzaba un
+    // TypeError ANTES del try, sin mensaje y sin guardar nada. Se normaliza.
+    const montoCrudo = String(this.amountInput ?? '').replace(/,/g, '').trim();
+    const parsedAmount = parseFloat(montoCrudo);
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
       this.errorMessage = 'Ingresa un monto positivo válido (ej. 15.50).';
       return;
