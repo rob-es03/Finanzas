@@ -17,3 +17,24 @@ Revisar `20261117180000_auth_profiles_and_accounts.sql` (tablas `profiles`, `acc
 4. La siembra inicial es idempotente.
 5. Dos usuarios de prueba no acceden a los datos del otro (evidencia adjunta).
 6. Tipos regenerados en `packages/contracts/`.
+
+---
+
+## Avance 2026-11-17 · migración correctiva escrita
+
+`supabase/migrations/20261118000000_core_finance_model.sql` (454 líneas). **No aplicada en ninguna base.**
+
+Corrige H-1 a H-8 de la auditoría y añade las 7 tablas que faltaban: `transactions`, `transfers`, `debts`, `debt_installments`, `budgets`, `reminders`, `import_batches`, más la vista `account_balances`.
+
+Decisiones de diseño que conviene revisar:
+- **Importes siempre positivos** en `transactions`; el signo lo determina `type`. Elimina el doble criterio de signo del prototipo.
+- **Claves foráneas compuestas `(user_id, id)`**: una fila no puede apuntar a la cuenta o categoría de otro usuario ni siquiera si la RLS fallara. Es una segunda línea de defensa, independiente de `auth.uid()`.
+- **Transferencias en tabla propia**, para que no distorsionen el flujo del mes.
+- **Estado de cuota derivado** (`installment_status()`), no almacenado.
+- **`account_balances` con `security_invoker = true`**, para que la vista respete la RLS de quien consulta en lugar de la del propietario.
+- **Tasa de interés en puntos básicos** (entero), para no introducir coma flotante por la puerta de atrás.
+
+### Pendiente antes de aplicar
+1. **La migración no se ha ejecutado**: no hay PostgreSQL local, ni Docker, ni CLI de Supabase en esta máquina, así que su sintaxis no está verificada por ejecución.
+2. Revisión de Codex y ampliación de `supabase/tests/` a todas las tablas.
+3. Autorización humana explícita, comprobando antes el estado remoto.
