@@ -29,6 +29,30 @@ Formato: ID · fecha · decisión · motivo · estado · origen.
 ## D-009 — Control de versiones local sin remoto
 2026-11-17 · Se inicializó un repositorio Git local en la carpeta del proyecto porque no existía ninguno. Aún no hay remoto; los pull requests requieren crear el repositorio en GitHub. **Provisional**, pendiente de P-05.
 
+
+## D-010 — Proyecto Supabase identificado
+2026-11-17 · Proyecto `ujalaluhmtwevqhnzivo` (`us-east-2`, PostgreSQL 17.12, `ACTIVE_HEALTHY`). Verificado por API: **0 migraciones aplicadas y 0 tablas en `public`**. Ninguna migración se ha ejecutado; la del repositorio sigue siendo una propuesta sin aplicar. **Aceptada.**
+
+## D-011 — GitHub como fuente única de verdad
+2026-11-17 · El repositorio de GitHub (privado) manda sobre cualquier copia local. Todo trabajo de los tres agentes se integra mediante ramas y pull requests contra `main`; no se fusiona automáticamente. **Aceptada.** Origen: encargo.
+
+## D-012 — `environment.ts` fuera del control de versiones
+2026-11-17 · `src/environments/environment.ts` estaba versionado. Se retiró del índice (`git rm --cached`; el archivo permanece en disco) y se añadió a `.gitignore`. Se versiona solo `environment.example.ts`. **Aceptada.**
+
+## D-013 — Dependencias faltantes instaladas, código ajeno intacto
+2026-11-17 · El código de autenticación importaba `@capacitor/browser` y `@capacitor/preferences` sin que estuvieran instalados, y el proyecto no compilaba. Se instalaron las dependencias en lugar de modificar código de otro agente. **Aceptada.**
+
+## D-014 — Credencial de Supabase expuesta en conversación
+2026-11-17 · Se recibió un token de acceso personal de Supabase (`sbp_...`) por chat. Se usó **solo en lectura** para consultar el estado del proyecto y **no se escribió en ningún archivo del repositorio**. Un token compartido por un canal de conversación debe considerarse comprometido: **se recomienda revocarlo y emitir uno nuevo**. **Pendiente de acción humana.**
+
+## D-015 — El lint en rojo no se corrige por propiedad de archivos
+2026-11-17 · Los 3 errores de lint están en archivos propiedad de Antigravity. Según `AGENTS.md` no se editan sin coordinación: quedan documentados en `docs/estado-actual.md` y asignados a su responsable. **Aceptada.**
+
+## D-016 — El repositorio se publica en GitHub público
+2026-11-17 · `https://github.com/rob-es03/Finanzas`, **visibilidad pública**, por decisión expresa del responsable tras advertirle del riesgo. Consecuencia conocida y aceptada: el historial contiene desde el commit `394e99a` el prototipo `finanzas_nicolle.html` con el nombre real de una persona, sus entidades bancarias y cifras concretas de su economía; ese contenido queda indexable y clonable. Retirarlo exigiría reescribir el historial y rebasar las ramas de los tres agentes. **Aceptada por el responsable.** Pendiente: decidir si se redacta el prototipo más adelante y se coordina la reescritura.
+
+## D-017 — `main` parte de un historial no relacionado
+2026-11-17 · El repositorio remoto se creó con un «Initial commit» (`7bf297e`, solo `README.md`) sin relación con el historial local. Se integró con `merge --allow-unrelated-histories` (`18decbd`) en lugar de forzar el push, para no destruir el commit remoto. **Aceptada.**
 ## Preguntas abiertas
 
 - 2026-11-17 · **P-05, evidencia pendiente.** Se informó que el código de Claude Code está en GitHub. La copia local carece de remoto y las búsquedas no identificaron un PR verificable. **Supuesto provisional:** tratar el scaffold local como una copia independiente de la versión candidata hasta confirmar el enlace del PR y su SHA. El identificador de Supabase es conocido y la consulta de migraciones sigue bloqueada por permisos.

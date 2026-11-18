@@ -1,7 +1,43 @@
+# Dependencias y artefactos de build
 node_modules/
 dist/
+www/
+.angular/
+coverage/
+*.tsbuildinfo
+
+# Variables de entorno y configuración local
 .env
-.env.local
+.env.*
+!.env.example
+apps/mobile/src/environments/environment.ts
+apps/mobile/src/environments/environment.prod.ts
+!apps/mobile/src/environments/environment.example.ts
+
+# Credenciales y firma Android (NUNCA versionar)
 *.keystore
+*.jks
+*.p12
+*.pem
+*.key
+keystore.properties
+google-services.json
+GoogleService-Info.plist
 android/local.properties
+apps/mobile/android/local.properties
+apps/mobile/android/keystore.properties
+apps/mobile/android/app/release/
+
+# Supabase local
+supabase/.temp/
+supabase/.branches/
+
+# Sistema y editor
 .DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
+.idea/
+*.iml
+.gradle/
+.claude/

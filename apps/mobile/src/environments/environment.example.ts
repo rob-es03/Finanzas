@@ -1,12 +1,15 @@
 /**
- * Plantilla de configuración. Copia este archivo a `environment.ts`
- * (ignorado por Git) y rellena los valores reales.
+ * Plantilla de configuración de entorno.
+ * Solo claves PÚBLICAS (anon key de Supabase). La `service_role` key NUNCA entra al cliente.
  *
- * Aquí solo van claves PÚBLICAS (anon key de Supabase). La `service_role`
- * key NUNCA entra en el cliente: ver AGENTS.md, sección 6.
+ * Proyecto Supabase: ujalaluhmtwevqhnzivo
  */
 export const environment = {
   production: false,
-  supabaseUrl: '',
-  supabaseAnonKey: '',
+  supabaseUrl: 'https://ujalaluhmtwevqhnzivo.supabase.co',
+  supabaseAnonKey: 'REEMPLAZAR_CON_SUPABASE_ANON_KEY',
+  oauth: {
+    webRedirectUri: 'http://localhost:4200/auth/callback',
+    androidRedirectUri: 'ec.finanzas.app://auth/callback',
+  },
 };

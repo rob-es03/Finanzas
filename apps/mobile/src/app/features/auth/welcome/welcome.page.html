@@ -1,0 +1,68 @@
+<ion-content [fullscreen]="true" class="welcome-container">
+  <div class="welcome-content">
+    <!-- Hero Branding -->
+    <header class="hero-section">
+      <div class="badge-tag">
+        <span class="badge-dot"></span>
+        <span class="badge-text">Control Financiero Inteligente</span>
+      </div>
+
+      <div class="logo-wrapper">
+        <div class="logo-circle">
+          <svg class="logo-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+          </svg>
+        </div>
+      </div>
+
+      <h1 class="hero-title">Tus finanzas, sin enredos y bajo tu control</h1>
+      <p class="hero-subtitle">
+        Gestiona ingresos, gastos esenciales, cuotas de préstamos y saldos bancarios con precisión al centavo.
+      </p>
+    </header>
+
+    <!-- Ventajas Clave -->
+    <section class="benefits-grid">
+      <div class="benefit-card border-l-success">
+        <div class="benefit-icon success">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941" /></svg>
+        </div>
+        <div class="benefit-text">
+          <h3>Cálculos sin decimales flotantes</h3>
+          <p>Tus saldos se gestionan en centavos enteros exactos.</p>
+        </div>
+      </div>
+
+      <div class="benefit-card border-l-primary">
+        <div class="benefit-icon primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
+        </div>
+        <div class="benefit-text">
+          <h3>Privacidad y RLS estricta</h3>
+          <p>Aislamiento total de tus datos protegidos por Supabase.</p>
+        </div>
+      </div>
+
+      <div class="benefit-card border-l-warning">
+        <div class="benefit-icon warning">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" /></svg>
+        </div>
+        <div class="benefit-text">
+          <h3>Experiencia nativa Android y Web</h3>
+          <p>Navegación fluida y diseñada para uso ágil con una mano.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Acciones CTA -->
+    <footer class="action-footer">
+      <button type="button" class="btn-primary-cta" (click)="goToLogin()">
+        <span>Continuar al Inicio de Sesión</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+      </button>
+      <p class="terms-note">
+        Al continuar, aceptas la gestión privada y segura de tu perfil financiero.
+      </p>
+    </footer>
+  </div>
+</ion-content>

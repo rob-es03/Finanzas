@@ -62,3 +62,30 @@ Google Sign-In sobre Supabase Auth.
 - Mecanismo exacto del login con Google en Capacitor.
 - Motor de almacenamiento local (SQLite vs. preferencias) — depende del alcance offline (P-02).
 - Widget Android: implementación nativa separada del código financiero.
+
+---
+
+## Estado real de la implementación (2026-11-17)
+
+Lo anterior es la arquitectura **objetivo**. Lo que existe hoy:
+
+- `apps/mobile/` — Angular 22.2.6 + Ionic 9.0.12 + Capacitor 8.6.2, TypeScript estricto, ESLint. Compila.
+- `apps/mobile/src/app/core/supabase/supabase.client.ts` — cliente único, PKCE, persistencia por plataforma (Capacitor Preferences en nativo, `localStorage` en web).
+- `apps/mobile/src/app/core/auth/` — `auth.service.ts`, `auth.guard.ts` (`authGuard`, `publicOnlyGuard`, `onboardingGuard`), `capacitor-storage.adapter.ts`. **Sin verificar contra Supabase.**
+- `apps/mobile/src/app/features/auth/` — welcome, login, callback, onboarding, error.
+- `apps/mobile/android/` — plataforma Capacitor generada, `appId` `ec.finanzas.app`.
+- `packages/contracts/` — `auth.contract.ts`, `index.ts`.
+- `supabase/migrations/20261117180000_auth_profiles_and_accounts.sql` — `profiles`, `accounts`, `categories` con RLS (11 políticas) y centavos en `BIGINT`. **No aplicada.**
+
+### Proyecto Supabase
+`ujalaluhmtwevqhnzivo` · `us-east-2` · PostgreSQL 17.12 · `ACTIVE_HEALTHY` · **0 migraciones, 0 tablas**.
+Antes de aplicar cualquier migración se consulta el estado remoto; aplicarla requiere autorización humana explícita.
+
+### Redirect URIs de OAuth (declarados en `environment.example.ts`)
+- Web: `http://localhost:4200/auth/callback`
+- Android: `ec.finanzas.app://auth/callback`
+
+Ambos deben registrarse en Supabase Auth y en el cliente OAuth de Google. Todavía no se ha hecho.
+
+### Dirección visual
+La identidad y las reglas de interfaz se gobiernan desde `docs/design/` (ver `DIRECTIVA-DISENO.md`). Ningún agente cambia la identidad visual global de forma unilateral.
