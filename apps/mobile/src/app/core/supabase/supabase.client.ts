@@ -28,7 +28,7 @@ export class SupabaseClientService {
           storage: isNative ? new CapacitorStorageAdapter() : undefined,
           autoRefreshToken: true,
           persistSession: true,
-          detectSessionInUrl: true,
+          detectSessionInUrl: false,
           flowType: 'pkce',
         },
       });

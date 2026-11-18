@@ -165,3 +165,34 @@
 .dot-separator {
   color: var(--app-text-muted);
 }
+
+.email-form {
+  display: grid;
+  gap: 0.5rem;
+  width: 100%;
+  margin-bottom: 1rem;
+
+  input {
+    font: inherit;
+    min-height: 3rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--ion-color-medium);
+    border-radius: 0.5rem;
+    color: var(--ion-text-color);
+    background: var(--ion-background-color);
+  }
+}
+
+.email-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+
+  button, a {
+    min-height: 3rem;
+    color: var(--ion-color-primary);
+    background: transparent;
+    font: inherit;
+  }
+}
