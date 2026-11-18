@@ -1,112 +1,234 @@
 import { TestBed } from '@angular/core/testing';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { AccountOption, Movement, UpcomingPayment } from '@finanzas/contracts';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { FinanceRepository } from './finance.repository';
 import { FinancialStateService } from './financial-state.service';
+
+/**
+ * Estas pruebas comprobaban el escenario de referencia que el servicio traía
+ * escrito a mano. Ahora los datos vienen de Supabase, así que se comprueba el
+ * mismo comportamiento contra un repositorio falso con un escenario fijo:
+ * saldos por cuenta, resumen del mes, filtros y registro.
+ *
+ * El doble está tipado contra FinanceRepository a propósito: si el servicio
+ * empieza a usar un método que el doble no implementa, esto deja de compilar
+ * en vez de romper en ejecución.
+ */
+
+const CUENTA_BANCO = 'acc-banco';
+const CUENTA_EFECTIVO = 'acc-efectivo';
+const MES = '2026-11';
+
+function movimientos(): Movement[] {
+  return [
+    {
+      id: 'mov-1',
+      type: 'income',
+      description: 'Sueldo de noviembre',
+      amountCents: 95000,
+      date: `${MES}-01`,
+      accountId: CUENTA_BANCO,
+      accountName: 'Banco',
+      categoryId: 'cat-sueldo',
+      categoryName: 'Sueldo',
+    },
+    {
+      id: 'mov-2',
+      type: 'expense',
+      description: 'Arriendo',
+      amountCents: 42000,
+      date: `${MES}-05`,
+      accountId: CUENTA_BANCO,
+      accountName: 'Banco',
+      categoryId: 'cat-vivienda',
+      categoryName: 'Vivienda',
+    },
+    {
+      id: 'mov-3',
+      type: 'expense',
+      description: 'Almuerzo',
+      amountCents: 1500,
+      date: '2026-10-20',
+      accountId: CUENTA_EFECTIVO,
+      accountName: 'Efectivo',
+      categoryId: 'cat-alimentacion',
+      categoryName: 'Alimentación',
+    },
+  ];
+}
+
+function cuentas(): AccountOption[] {
+  return [
+    { id: CUENTA_BANCO, name: 'Banco', type: 'bank', balanceCents: 128050 },
+    { id: CUENTA_EFECTIVO, name: 'Efectivo', type: 'cash', balanceCents: 10000 },
+  ];
+}
+
+function proximosPagos(): UpcomingPayment[] {
+  return [
+    {
+      id: 'cuota-1',
+      description: 'Préstamo · cuota 3',
+      amountCents: 7000,
+      dueDate: `${MES}-25`,
+      accountName: 'Préstamo',
+      status: 'due_soon',
+    },
+  ];
+}
 
 describe('FinancialStateService (Criterios IN, MO, RE)', () => {
   let service: FinancialStateService;
+  let repo: {
+    getAccounts: ReturnType<typeof vi.fn>;
+    getCategories: ReturnType<typeof vi.fn>;
+    getMovements: ReturnType<typeof vi.fn>;
+    getUpcomingPayments: ReturnType<typeof vi.fn>;
+    insertMovement: ReturnType<typeof vi.fn>;
+    updateMovement: ReturnType<typeof vi.fn>;
+    deleteMovement: ReturnType<typeof vi.fn>;
+    createAccount: ReturnType<typeof vi.fn>;
+  };
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    repo = {
+      getAccounts: vi.fn().mockResolvedValue(cuentas()),
+      getCategories: vi.fn().mockResolvedValue([
+        { id: 'cat-sueldo', name: 'Sueldo', type: 'income' },
+        { id: 'cat-vivienda', name: 'Vivienda', type: 'expense' },
+      ]),
+      getMovements: vi.fn().mockResolvedValue(movimientos()),
+      getUpcomingPayments: vi.fn().mockResolvedValue(proximosPagos()),
+      insertMovement: vi.fn().mockResolvedValue('mov-nuevo'),
+      updateMovement: vi.fn().mockResolvedValue(undefined),
+      deleteMovement: vi.fn().mockResolvedValue(undefined),
+      createAccount: vi.fn().mockResolvedValue('acc-nueva'),
+    };
+
     TestBed.configureTestingModule({
-      providers: [FinancialStateService],
+      providers: [{ provide: FinanceRepository, useValue: repo }],
     });
+
     service = TestBed.inject(FinancialStateService);
+    service.setFilters('', MES, 'all');
+    await service.load();
   });
 
-  describe('Criterio IN-01 & IN-02: Inicio, Balances y Flujo Neto', () => {
-    it('debe iniciar con el saldo de referencia en cuentas de $1,280.50 (128050 centavos)', () => {
-      expect(service.currentBalanceCents()).toBe(128050);
-      expect(service.currentAccount().name).toBe('Todas las cuentas');
+  describe('Criterio IN-01 e IN-02: saldos y flujo neto', () => {
+    it('suma el saldo de todas las cuentas en la opción «Todas»', () => {
+      expect(service.selectedAccountId()).toBe('all');
+      expect(service.currentBalanceCents()).toBe(138050);
     });
 
-    it('cambiar de cuenta debe actualizar el saldo y conservar el alcance visible', () => {
-      service.setSelectedAccount('acc-bolivariano');
-      expect(service.currentAccount().name).toBe('Banco Bolivariano');
-      expect(service.currentBalanceCents()).toBe(85050); // $850.50
-
-      service.setSelectedAccount('acc-efectivo');
+    it('al elegir una cuenta muestra su saldo, no el total', () => {
+      service.setSelectedAccount(CUENTA_EFECTIVO);
       expect(service.currentAccount().name).toBe('Efectivo');
-      expect(service.currentBalanceCents()).toBe(10000); // $100.00
+      expect(service.currentBalanceCents()).toBe(10000);
     });
 
-    it('debe calcular el resumen mensual de referencia: Ingresos $950, Gastos $420, Flujo +$530', () => {
-      const summary = service.monthSummary();
-      expect(summary.incomeCents).toBe(95000); // $950.00
-      expect(summary.expenseCents).toBe(42000); // $420.00
-      expect(summary.netFlowCents).toBe(53000); // +$530.00
+    it('el resumen del mes solo cuenta los movimientos de ese mes', () => {
+      const resumen = service.monthSummary();
+      expect(resumen.incomeCents).toBe(95000);
+      expect(resumen.expenseCents).toBe(42000);
+      expect(resumen.netFlowCents).toBe(53000);
     });
 
-    it('debe entregar los 3 proximos pagos ordenados para los proximos 7 dias', () => {
-      const upcoming = service.upcomingPayments();
-      expect(upcoming.length).toBe(3);
-      expect(upcoming[0].description).toContain('Luz');
-      expect(upcoming[1].description).toContain('Internet');
-      expect(upcoming[2].description).toContain('Produbanco');
+    it('el resumen se acota a la cuenta elegida', () => {
+      service.setSelectedAccount(CUENTA_EFECTIVO);
+      const resumen = service.monthSummary();
+      expect(resumen.incomeCents).toBe(0);
+      expect(resumen.expenseCents).toBe(0);
+    });
+
+    it('entrega los próximos pagos que devuelve la base', () => {
+      expect(service.upcomingPayments()).toHaveLength(1);
+      expect(service.upcomingPayments()[0].status).toBe('due_soon');
     });
   });
 
-  describe('Criterio MO-01 & MO-02: Movimientos, Búsqueda y Filtros', () => {
-    it('debe filtrar por busqueda de texto insensible a mayusculas', () => {
-      service.filterSearch.set('luz');
-      const filtered = service.filteredMovements();
-      expect(filtered.length).toBe(1);
-      expect(filtered[0].description).toBe('Planilla de Luz CNEL');
+  describe('Criterio MO-01 y MO-02: búsqueda y filtros', () => {
+    it('busca por texto sin distinguir mayúsculas', () => {
+      service.setFilters('ARRIENDO', MES, 'all');
+      expect(service.filteredMovements()).toHaveLength(1);
+      expect(service.filteredMovements()[0].id).toBe('mov-2');
     });
 
-    it('debe filtrar por tipo de movimiento (ingreso / gasto)', () => {
-      service.filterType.set('income');
-      const incomes = service.filteredMovements();
-      expect(incomes.every((m) => m.type === 'income')).toBe(true);
-      expect(incomes.length).toBe(2); // Sueldo y Bono
+    it('filtra por tipo de movimiento', () => {
+      service.setFilters('', MES, 'income');
+      expect(service.filteredMovements().every((m) => m.type === 'income')).toBe(true);
 
-      service.filterType.set('expense');
-      const expenses = service.filteredMovements();
-      expect(expenses.every((m) => m.type === 'expense')).toBe(true);
-      expect(expenses.length).toBe(4);
+      service.setFilters('', MES, 'expense');
+      expect(service.filteredMovements().every((m) => m.type === 'expense')).toBe(true);
     });
 
-    it('debe distinguir busqueda sin coincidencias y permitir limpiar filtros', () => {
-      service.filterSearch.set('termino_inexistente_xyz');
-      expect(service.filteredMovements().length).toBe(0);
+    it('distingue «sin coincidencias» de «sin datos» y permite limpiar', () => {
+      service.setFilters('zzz-inexistente', MES, 'all');
+      expect(service.filteredMovements()).toHaveLength(0);
+      expect(service.movements().length).toBeGreaterThan(0);
 
       service.clearFilters();
       expect(service.filterSearch()).toBe('');
       expect(service.filterType()).toBe('all');
-      expect(service.filteredMovements().length).toBe(6);
     });
   });
 
-  describe('Criterio RE-01 & RE-02: Registro Rápido y Resiliencia ante Fallos', () => {
-    it('debe registrar un movimiento y actualizar el balance en centavos', async () => {
-      const initialBalance = service.currentBalanceCents();
-
-      const newMov = await service.saveMovement({
+  describe('Criterio RE-01 y RE-02: registro y resiliencia', () => {
+    it('guarda el movimiento en la base y recarga el estado', async () => {
+      await service.saveMovement({
         type: 'expense',
-        description: 'Café de prueba',
-        amountCents: 250, // $2.50
-        date: '2026-11-17',
-        accountId: 'acc-bolivariano',
-        categoryId: 'cat-alimentos',
+        description: 'Luz',
+        amountCents: 3000,
+        date: `${MES}-18`,
+        accountId: CUENTA_BANCO,
+        categoryId: 'cat-vivienda',
       });
 
-      expect(newMov.amountCents).toBe(250);
-      expect(service.movements()[0].description).toBe('Café de prueba');
-      // El balance total debe reducirse en 250 centavos
-      expect(service.currentBalanceCents()).toBe(initialBalance - 250);
+      expect(repo.insertMovement).toHaveBeenCalledTimes(1);
+      expect(repo.insertMovement.mock.calls[0][0]).toMatchObject({
+        amountCents: 3000,
+        accountId: CUENTA_BANCO,
+      });
+      // Recarga: los saldos vuelven a pedirse a la base en lugar de sumarse aquí.
+      expect(repo.getAccounts).toHaveBeenCalledTimes(2);
     });
 
-    it('debe conservar los datos y lanzar error cuando simulateSaveFailure esta activo', async () => {
+    it('con «Todas las cuentas» elige una cuenta real en vez de enviar «all»', async () => {
+      service.setSelectedAccount('all');
+      await service.saveMovement({
+        type: 'expense',
+        description: 'Café',
+        amountCents: 250,
+        date: `${MES}-18`,
+        accountId: 'all',
+        categoryId: 'cat-vivienda',
+      });
+
+      expect(repo.insertMovement.mock.calls[0][0].accountId).toBe(CUENTA_BANCO);
+    });
+
+    it('conserva los datos y lanza error cuando se simula un fallo', async () => {
       service.simulateSaveFailure.set(true);
 
       await expect(
         service.saveMovement({
           type: 'expense',
-          description: 'Intento fallido',
-          amountCents: 500,
-          date: '2026-11-17',
-          accountId: 'acc-efectivo',
-          categoryId: 'cat-alimentos',
+          description: 'Internet',
+          amountCents: 2300,
+          date: `${MES}-18`,
+          accountId: CUENTA_BANCO,
+          categoryId: 'cat-vivienda',
         }),
-      ).rejects.toThrow('Error de conexión con el servidor. Se conservaron los datos ingresados.');
+      ).rejects.toThrow(/conexión/i);
+
+      expect(repo.insertMovement).not.toHaveBeenCalled();
+    });
+
+    it('marca error parcial si una parte de la carga falla, sin tumbar el resto', async () => {
+      repo.getUpcomingPayments.mockRejectedValueOnce(new Error('sin red'));
+      await service.load();
+
+      expect(service.hasPartialError()).toBe(true);
+      expect(service.movements().length).toBeGreaterThan(0);
     });
   });
 });
