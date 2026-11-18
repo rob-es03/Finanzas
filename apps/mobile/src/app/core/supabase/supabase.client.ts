@@ -28,7 +28,13 @@ export class SupabaseClientService {
           storage: isNative ? new CapacitorStorageAdapter() : undefined,
           autoRefreshToken: true,
           persistSession: true,
-          detectSessionInUrl: true,
+          // El intercambio del código PKCE lo hace `AuthService.handleOAuthRedirectUrl`.
+          // Con `detectSessionInUrl: true` supabase-js lo intercambiaba también por su
+          // cuenta al cargar la página de callback: consumía y borraba el code_verifier,
+          // y el intercambio explícito fallaba después con
+          // «PKCE code verifier not found in storage». Un único responsable del
+          // intercambio, y el mismo camino en web y en el deep link de Android.
+          detectSessionInUrl: false,
           flowType: 'pkce',
         },
       });

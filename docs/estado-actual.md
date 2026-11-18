@@ -117,3 +117,29 @@ Hecho por API sobre `ujalaluhmtwevqhnzivo`:
 - Build con la configuración real: ✅.
 
 **Pendiente y bloqueante para T-003**: crear el cliente OAuth en Google Cloud y activar el proveedor Google en Supabase con su client ID y secret (`external_google_enabled` sigue en `false`). Pasos en `docs/ops/OAUTH-GOOGLE.md`.
+
+### T-003 verificada en web · 2026-11-17
+
+**Primer login real con Google completado contra el proyecto en la nube.** Evidencia consultada por API tras el acceso:
+
+| Comprobación | Resultado |
+|---|---|
+| Usuario en `auth.users` | proveedor `google` |
+| Perfil creado | nombre y avatar de Google, `USD`, `America/Guayaquil` |
+| Siembra de categorías | **8** (2 ingresos, 6 gastos), clasificación **genérica** |
+| Duplicados de categoría | **0** |
+| Redirección tras el acceso | `/auth/onboarding`, como corresponde a `onboarding_completed = false` |
+
+#### Defecto corregido durante la prueba
+El primer intento falló con `PKCE code verifier not found in storage`. Causa: el cliente se creaba con `detectSessionInUrl: true`, de modo que supabase-js canjeaba el código por su cuenta al cargar la página de callback y borraba el `code_verifier`; acto seguido `handleOAuthRedirectUrl` llamaba a `exchangeCodeForSession` y ya no lo encontraba. Dos responsables para un intercambio que solo admite uno.
+
+Corregido en `core/supabase/supabase.client.ts` (`detectSessionInUrl: false`) y endurecido `core/auth/auth.service.ts`: si el intercambio falla pero ya existe sesión, se usa esa en lugar de dar el acceso por fallido. Tras el cambio, el login pasó de extremo a extremo.
+
+#### Defecto abierto
+`publicOnlyGuard` no redirige a un usuario con sesión activa: `auth/login` sigue mostrándose. Ver `docs/tareas/T-033-publiconlyguard.md`.
+
+#### Lo que sigue sin verificarse
+El flujo **en Android**. Sigue bloqueado por el entorno: JDK 1.8 y sin SDK. Hasta entonces, T-003 está verificada **solo en web**.
+
+#### Nota de entorno
+El puerto 4200 lo ocupa otro agente con un **Supabase local** (`127.0.0.1:54321`): el `environment.ts` de la carpeta principal fue reescrito para apuntar allí. Esta prueba se hizo en el puerto 4300 desde el worktree `finanzas-claude`, contra el proyecto en la nube. **Decisión pendiente**: unificar a qué base apunta cada agente.

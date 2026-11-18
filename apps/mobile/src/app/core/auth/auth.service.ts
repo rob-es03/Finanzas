@@ -120,7 +120,17 @@ export class AuthService {
       if (code) {
         // Intercambiar código PKCE por tokens de sesión
         const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-        if (error) throw error;
+        if (error) {
+          // Si el código ya fue canjeado (por ejemplo, al recargar la página de
+          // callback), puede existir ya una sesión válida. Comprobarlo antes de
+          // dar el acceso por fallido evita un error que el usuario no entiende.
+          const { data: { session: existing } } = await supabase.auth.getSession();
+          if (!existing) throw error;
+          this._session.set(existing);
+          await this.syncProfile(existing.user);
+          this.redirectAfterAuth();
+          return;
+        }
         if (data.session) {
           this._session.set(data.session);
           await this.syncProfile(data.session.user);
