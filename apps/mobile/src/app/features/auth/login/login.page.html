@@ -14,9 +14,9 @@
         <span>Acceso Seguro y Cifrado</span>
       </div>
 
-      <h1 class="login-title">Iniciar sesión</h1>
+      <h1 class="login-title">{{ mode() === 'register' ? 'Crear cuenta' : mode() === 'recover' ? 'Recuperar contraseña' : mode() === 'reset' ? 'Nueva contraseña' : 'Iniciar sesión' }}</h1>
       <p class="login-subtitle">
-        Accede a tu panel financiero personal. Sin contraseñas que recordar, mediante tu cuenta de Google.
+        Usa tu correo electrónico o tu cuenta de Google para acceder a Finanzas.
       </p>
     </header>
 
@@ -30,12 +30,49 @@
 
     <!-- Tarjeta de Autenticación con Google -->
     <main class="auth-card">
+      @if (mode() !== 'reset' || authService.recoveryInProgress()) {
+        <form class="email-form" #emailForm="ngForm" (ngSubmit)="submitEmail(emailForm.value.email ?? '', emailForm.value.password ?? '')">
+          @if (mode() !== 'reset') {
+            <label for="auth-email">Correo electrónico</label>
+            <input id="auth-email" name="email" type="email" autocomplete="email" ngModel email required />
+          }
+          @if (mode() !== 'recover') {
+            <label for="auth-password">{{ mode() === 'reset' ? 'Nueva contraseña' : 'Contraseña' }}</label>
+            <input id="auth-password" name="password" type="password" ngModel required
+              [attr.autocomplete]="mode() === 'login' ? 'current-password' : 'new-password'"
+              [minlength]="mode() === 'login' ? 1 : 8" />
+            @if (mode() === 'register' || mode() === 'reset') {
+              <small>Usa al menos 8 caracteres.</small>
+            }
+          }
+          <button class="google-sign-in-btn" type="submit" [disabled]="emailForm.invalid || emailBusy() || isSigningIn()">
+            {{ emailBusy() ? 'Procesando…' : mode() === 'register' ? 'Crear cuenta' :
+              mode() === 'recover' ? 'Enviar enlace' : mode() === 'reset' ? 'Guardar contraseña' : 'Iniciar sesión con correo' }}
+          </button>
+        </form>
+      } @else {
+        <p role="alert">Abre un enlace de recuperación válido o solicita uno nuevo.</p>
+      }
+      @if (notice(); as message) {
+        <p role="status">{{ message }}</p>
+      }
+      <div class="email-actions">
+        @if (mode() === 'login') {
+          <button type="button" (click)="setMode('register')" [disabled]="emailBusy()">Crear cuenta</button>
+          <button type="button" (click)="setMode('recover')" [disabled]="emailBusy()">Olvidé mi contraseña</button>
+        } @else if (mode() === 'reset') {
+          <a routerLink="/auth/login">Volver al inicio de sesión</a>
+        } @else {
+          <button type="button" (click)="setMode('login')" [disabled]="emailBusy()">Volver al inicio de sesión</button>
+        }
+      </div>
+      @if (mode() === 'login') {
       <div class="google-action-box">
         <!-- Botón oficial «Continuar con Google» -->
         <button
           type="button"
           class="google-sign-in-btn"
-          [disabled]="isSigningIn() || authService.isLoading()"
+          [disabled]="isSigningIn() || authService.isLoading() || emailBusy()"
           (click)="handleGoogleLogin()"
         >
           @if (isSigningIn() || authService.isLoading()) {
@@ -65,6 +102,7 @@
           </p>
         </div>
       </div>
+      }
     </main>
 
     <!-- Pie de página de confianza -->

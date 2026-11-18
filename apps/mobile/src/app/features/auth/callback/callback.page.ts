@@ -15,7 +15,7 @@ export class AuthCallbackPage implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
-  readonly statusMessage = signal<string>('Verificando credenciales con Google...');
+  readonly statusMessage = signal<string>('Verificando el enlace de acceso…');
 
   async ngOnInit(): Promise<void> {
     try {

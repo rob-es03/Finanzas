@@ -20,6 +20,8 @@ export class AuthService {
   private readonly _authError = signal<string | null>(null);
 
   // Computadas públicas
+  readonly recoveryInProgress = signal(false);
+  private callbackCode: string | null = null;
   readonly session = computed(() => this._session());
   readonly profile = computed(() => this._profile());
   readonly isLoading = computed(() => this._isLoading());
@@ -27,8 +29,10 @@ export class AuthService {
   readonly isAuthenticated = computed(() => !!this._session());
   readonly isOnboardingCompleted = computed(() => this._profile()?.onboardingCompleted ?? false);
 
+  private readonly authReady: Promise<void>;
+
   constructor() {
-    this.initializeAuth();
+    this.authReady = this.initializeAuth();
     this.setupDeepLinkListener();
   }
 
@@ -53,13 +57,16 @@ export class AuthService {
       }
 
       // 2. Suscribirse a cambios de estado de autenticación
-      supabase.auth.onAuthStateChange(async (event, newSession) => {
+      supabase.auth.onAuthStateChange((event, newSession) => {
         this._session.set(newSession);
 
-        if (event === 'SIGNED_IN' && newSession?.user) {
+        if (event === 'PASSWORD_RECOVERY') {
+          this.recoveryInProgress.set(Boolean(newSession));
+        } else if (event === 'SIGNED_IN' && newSession?.user) {
           this._authError.set(null);
-          await this.syncProfile(newSession.user);
+
         } else if (event === 'SIGNED_OUT') {
+          this.recoveryInProgress.set(false);
           this._profile.set(null);
           this._authError.set(null);
           this.router.navigate(['/auth/login']);
@@ -83,20 +90,22 @@ export class AuthService {
   private setupDeepLinkListener(): void {
     if (!Capacitor.isNativePlatform()) return;
 
-    App.addListener('appUrlOpen', async ({ url }) => {
-      if (!url) return;
-
-      // Verificar si es el callback de autenticación
-      if (url.includes('auth/callback') || url.startsWith('ec.finanzas.app')) {
-        try {
-          await Browser.close();
-        } catch {
-          // Si el navegador ya estaba cerrado, ignorar
-        }
-
-        await this.handleOAuthRedirectUrl(url);
+    const receive = async (url: string): Promise<void> => {
+      if (!URL.canParse(url)) return;
+      const incoming = new URL(url);
+      const expected = new URL(environment.oauth.androidRedirectUri);
+      if (incoming.protocol !== expected.protocol || incoming.hostname !== expected.hostname ||
+          incoming.port !== expected.port || incoming.pathname !== expected.pathname) return;
+      try {
+        await Browser.close();
+      } catch {
+        // El enlace de correo puede abrirse desde un navegador externo.
       }
-    });
+      await this.handleOAuthRedirectUrl(url);
+    };
+
+    void App.addListener('appUrlOpen', ({ url }) => receive(url));
+    void App.getLaunchUrl().then((launch) => launch && receive(launch.url));
   }
 
   /**
@@ -109,7 +118,7 @@ export class AuthService {
       const supabase = this.supabaseService.db;
 
       // Procesar URL con parámetros de búsqueda o fragmentos hash
-      const parsedUrl = new URL(urlStr.replace('#', '?'));
+      const parsedUrl = new URL(urlStr);
       const code = parsedUrl.searchParams.get('code');
       const errorDescription = parsedUrl.searchParams.get('error_description');
 
@@ -118,26 +127,27 @@ export class AuthService {
       }
 
       if (code) {
-        // Intercambiar código PKCE por tokens de sesión
+        if (this.callbackCode === code) return;
+        this.callbackCode = code;
+        await this.authReady;
+        this.recoveryInProgress.set(false);
+        // El cliente emite PASSWORD_RECOVERY durante el intercambio PKCE.
         const { data, error } = await supabase.auth.exchangeCodeForSession(code);
         if (error) throw error;
         if (data.session) {
-          this._session.set(data.session);
-          await this.syncProfile(data.session.user);
-          this.redirectAfterAuth();
+          if (this.recoveryInProgress()) {
+            this._session.set(data.session);
+            this.recoveryInProgress.set(true);
+            await this.router.navigate(['/auth/reset-password'], { replaceUrl: true });
+          } else {
+            await this.finishSignIn(data.session);
+          }
         }
       } else {
-        // Caso de hash tokens o sesión ya interceptada
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) throw error;
-        if (session) {
-          this._session.set(session);
-          await this.syncProfile(session.user);
-          this.redirectAfterAuth();
-        }
+        throw new Error('El enlace no contiene un código válido. Solicita uno nuevo.');
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Error al procesar el retorno de Google';
+      const msg = err instanceof Error ? err.message : 'No se pudo procesar el enlace de acceso.';
       this._authError.set(msg);
       this.router.navigate(['/auth/error'], { queryParams: { message: msg } });
     } finally {
@@ -193,11 +203,57 @@ export class AuthService {
    * Cierra la sesión activa de forma segura.
    * Limpia almacenamiento seguro de tokens y restablece el estado.
    */
+  private get callbackUrl(): string {
+    return Capacitor.isNativePlatform() ? environment.oauth.androidRedirectUri
+      : typeof window === 'undefined' ? environment.oauth.webRedirectUri
+        : new URL('/auth/callback', window.location.origin).href;
+  }
+
+  async registerWithEmail(email: string, password: string): Promise<void> {
+    const { data, error } = await this.supabaseService.db.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: this.callbackUrl },
+    });
+    if (error) throw error;
+    if (data.session) await this.finishSignIn(data.session);
+  }
+
+  async signInWithEmail(email: string, password: string): Promise<void> {
+    const { data, error } = await this.supabaseService.db.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    await this.finishSignIn(data.session);
+  }
+
+  async requestPasswordReset(email: string): Promise<void> {
+    const { error } = await this.supabaseService.db.auth.resetPasswordForEmail(email, {
+      redirectTo: this.callbackUrl,
+    });
+    if (error) throw error;
+  }
+
+  async resetPassword(password: string): Promise<void> {
+    if (!this.recoveryInProgress() || !this._session()) {
+      throw new Error('Solicita otro enlace de recuperación.');
+    }
+    const { error } = await this.supabaseService.db.auth.updateUser({ password });
+    if (error) throw error;
+    await this.signOut();
+  }
+
+  private async finishSignIn(session: Session): Promise<void> {
+    this.recoveryInProgress.set(false);
+    this._session.set(session);
+    await this.syncProfile(session.user);
+    this.redirectAfterAuth();
+  }
+
   async signOut(): Promise<void> {
     try {
       this._isLoading.set(true);
       const supabase = this.supabaseService.db;
       await supabase.auth.signOut();
+      this.recoveryInProgress.set(false);
       this._session.set(null);
       this._profile.set(null);
       this._authError.set(null);
@@ -364,9 +420,9 @@ export class AuthService {
    */
   redirectAfterAuth(): void {
     if (this.isOnboardingCompleted()) {
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/dashboard'], { replaceUrl: true });
     } else {
-      this.router.navigate(['/auth/onboarding']);
+      this.router.navigate(['/auth/onboarding'], { replaceUrl: true });
     }
   }
 }

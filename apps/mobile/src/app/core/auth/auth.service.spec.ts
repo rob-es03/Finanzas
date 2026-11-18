@@ -103,4 +103,22 @@ describe('AuthService & Manejo de Sesiones', () => {
       queryParams: { message: 'Acceso denegado' },
     });
   });
+
+  it('abre el formulario de contraseña solo tras recibir el evento de recuperación', async () => {
+    const session = { user: { id: 'synthetic-user' } };
+    mockSupabase.auth.exchangeCodeForSession.mockImplementation(async () => {
+      const [notify] = mockSupabase.auth.onAuthStateChange.mock.calls[0];
+      notify('PASSWORD_RECOVERY', session);
+      return { data: { session }, error: null };
+    });
+
+    await service.handleOAuthRedirectUrl('http://localhost:4200/auth/callback?code=synthetic');
+
+    expect(service.recoveryInProgress()).toBe(true);
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['/auth/reset-password'], { replaceUrl: true });
+  });
+
+  it('rechaza el cambio de contraseña cuando no hay sesión de recuperación', async () => {
+    await expect(service.resetPassword('synthetic-password')).rejects.toThrow('Solicita otro enlace');
+  });
 });
