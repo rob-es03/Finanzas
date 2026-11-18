@@ -88,3 +88,20 @@ Antes de publicar nada: auditoría de secretos. Quedan fuera del repositorio `.e
 
 ## 12. Supabase
 Proyecto `ujalaluhmtwevqhnzivo`. **Antes de aplicar una migración se consulta siempre el estado remoto**; aplicarla requiere autorización humana explícita. Estado verificado el 2026-11-17: 0 migraciones, 0 tablas.
+
+## 13. Reparto de worktrees (2026-11-17)
+Cada agente trabaja en su propia copia; ya no se comparte una sola carpeta (bloqueo B-6 de `docs/estado-actual.md`).
+
+| Carpeta | Rama | Agente |
+|---|---|---|
+| `Escritorio/FINANZAS` | `ui/T-030-saldo-claro` | Antigravity |
+| `Escritorio/finanzas-claude` | `agent/claude-initial` | Claude Code |
+| `Escritorio/finanzas-codex` | `audit/T-010-verificacion-inicial` | Codex |
+| `Escritorio/finanzas-codex-resend` | `codex/docs-auth-correo-resend` | Codex |
+
+Reglas:
+- Trabaja **solo** dentro de tu carpeta. Git impide que dos worktrees tengan la misma rama checkeada, así que el reparto se respeta solo.
+- Cada worktree necesita su propio `npm --prefix apps/mobile install` y su propio `environment.ts` (no versionado): cópialo de `environment.example.ts`.
+- Antes de empezar: `git fetch origin` y `git rebase origin/main` o `git merge origin/main`, según el caso.
+- Para cambiar de tarea, crea un worktree nuevo en lugar de cambiar de rama dentro del tuyo.
+- Al terminar una rama: `git worktree remove <carpeta>` desde el repositorio principal.
