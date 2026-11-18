@@ -5,14 +5,25 @@ import { authGuard, onboardingGuard, publicOnlyGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 
 describe('Auth Guards', () => {
-  let mockAuthService: any;
-  let mockRouter: any;
+  // Los miembros de AuthService de los que dependen los guards. Las claves se
+  // toman del servicio real: si una deja de existir o cambia de nombre, esto no
+  // compila. Era lo que ocultaba el `any`: faltaba `whenReady` y la suite pasaba
+  // en verde mientras el guard real no redirigía (T-033).
+  type DependenciasDeGuards = Pick<
+    AuthService,
+    'isLoading' | 'isAuthenticated' | 'isOnboardingCompleted' | 'whenReady'
+  >;
+  type AuthServiceDoble = { [K in keyof DependenciasDeGuards]: ReturnType<typeof vi.fn> };
+
+  let mockAuthService: AuthServiceDoble;
+  let mockRouter: { createUrlTree: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     mockAuthService = {
       isLoading: vi.fn().mockReturnValue(false),
       isAuthenticated: vi.fn().mockReturnValue(false),
       isOnboardingCompleted: vi.fn().mockReturnValue(false),
+      whenReady: vi.fn().mockResolvedValue(undefined),
     };
 
     mockRouter = {
@@ -53,36 +64,36 @@ describe('Auth Guards', () => {
   });
 
   describe('publicOnlyGuard', () => {
-    it('debe permitir acceso libre a usuarios no autenticados', () => {
+    it('debe permitir acceso libre a usuarios no autenticados', async () => {
       mockAuthService.isAuthenticated.mockReturnValue(false);
 
-      const result = TestBed.runInInjectionContext(() => publicOnlyGuard({} as any, {} as any));
+      const result = await TestBed.runInInjectionContext(() => publicOnlyGuard({} as any, {} as any));
       expect(result).toBe(true);
     });
 
-    it('debe redirigir a /dashboard a usuarios ya autenticados y con onboarding listo', () => {
+    it('debe redirigir a /dashboard a usuarios ya autenticados y con onboarding listo', async () => {
       mockAuthService.isAuthenticated.mockReturnValue(true);
       mockAuthService.isOnboardingCompleted.mockReturnValue(true);
 
-      const result = TestBed.runInInjectionContext(() => publicOnlyGuard({} as any, {} as any));
+      const result = await TestBed.runInInjectionContext(() => publicOnlyGuard({} as any, {} as any));
       expect(result).toBe('urlTree:/dashboard');
     });
   });
 
   describe('onboardingGuard', () => {
-    it('debe permitir acceso si el usuario esta autenticado pero aun no completo onboarding', () => {
+    it('debe permitir acceso si el usuario esta autenticado pero aun no completo onboarding', async () => {
       mockAuthService.isAuthenticated.mockReturnValue(true);
       mockAuthService.isOnboardingCompleted.mockReturnValue(false);
 
-      const result = TestBed.runInInjectionContext(() => onboardingGuard({} as any, {} as any));
+      const result = await TestBed.runInInjectionContext(() => onboardingGuard({} as any, {} as any));
       expect(result).toBe(true);
     });
 
-    it('debe redirigir a /dashboard si ya completo onboarding previamente', () => {
+    it('debe redirigir a /dashboard si ya completo onboarding previamente', async () => {
       mockAuthService.isAuthenticated.mockReturnValue(true);
       mockAuthService.isOnboardingCompleted.mockReturnValue(true);
 
-      const result = TestBed.runInInjectionContext(() => onboardingGuard({} as any, {} as any));
+      const result = await TestBed.runInInjectionContext(() => onboardingGuard({} as any, {} as any));
       expect(result).toBe('urlTree:/dashboard');
     });
   });

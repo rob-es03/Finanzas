@@ -10,10 +10,10 @@ export const authGuard: CanActivateFn = async () => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  // Si está cargando la sesión inicial, esperar un ciclo
-  if (authService.isLoading()) {
-    await new Promise((resolve) => setTimeout(resolve, 100));
-  }
+  // Esperar a que la sesión inicial esté resuelta. Antes se esperaba un plazo
+  // fijo de 100 ms, que es una apuesta sobre cuánto tarda la red: si tardaba
+  // más, el guard decidía con la sesión todavía en null.
+  await authService.whenReady();
 
   if (!authService.isAuthenticated()) {
     return router.createUrlTree(['/auth/welcome']);
@@ -30,9 +30,11 @@ export const authGuard: CanActivateFn = async () => {
  * Guarda para páginas públicas de login/bienvenida.
  * Si ya tiene sesión activa, redirige al dashboard o al onboarding según corresponda.
  */
-export const publicOnlyGuard: CanActivateFn = () => {
+export const publicOnlyGuard: CanActivateFn = async () => {
   const authService = inject(AuthService);
   const router = inject(Router);
+
+  await authService.whenReady();
 
   if (authService.isAuthenticated()) {
     if (authService.isOnboardingCompleted()) {
@@ -48,9 +50,11 @@ export const publicOnlyGuard: CanActivateFn = () => {
  * Guarda para la pantalla de Onboarding.
  * Solo accesible para usuarios autenticados que NO han completado la configuración inicial.
  */
-export const onboardingGuard: CanActivateFn = () => {
+export const onboardingGuard: CanActivateFn = async () => {
   const authService = inject(AuthService);
   const router = inject(Router);
+
+  await authService.whenReady();
 
   if (!authService.isAuthenticated()) {
     return router.createUrlTree(['/auth/welcome']);

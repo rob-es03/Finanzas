@@ -27,9 +27,22 @@ export class AuthService {
   readonly isAuthenticated = computed(() => !!this._session());
   readonly isOnboardingCompleted = computed(() => this._profile()?.onboardingCompleted ?? false);
 
+  /**
+   * Se resuelve cuando la restauración inicial de la sesión ha terminado.
+   * Los guards la esperan: sin esto, en una carga en frío se evalúan antes de
+   * que `getSession()` responda, ven la sesión en `null` y dejan pasar a un
+   * usuario que sí está autenticado.
+   */
+  private readonly ready: Promise<void>;
+
   constructor() {
-    this.initializeAuth();
+    this.ready = this.initializeAuth();
     this.setupDeepLinkListener();
+  }
+
+  /** Espera a que la sesión inicial esté resuelta. Nunca rechaza. */
+  whenReady(): Promise<void> {
+    return this.ready;
   }
 
   /**

@@ -143,3 +143,6 @@ El flujo **en Android**. Sigue bloqueado por el entorno: JDK 1.8 y sin SDK. Hast
 
 #### Nota de entorno
 El puerto 4200 lo ocupa otro agente con un **Supabase local** (`127.0.0.1:54321`): el `environment.ts` de la carpeta principal fue reescrito para apuntar allí. Esta prueba se hizo en el puerto 4300 desde el worktree `finanzas-claude`, contra el proyecto en la nube. **Decisión pendiente**: unificar a qué base apunta cada agente.
+
+### T-033 resuelta · 2026-11-17
+Los guards esperaban la sesión con un `setTimeout(100)` o no la esperaban en absoluto. Ahora `AuthService.whenReady()` resuelve la restauración inicial y los tres guards la esperan. Verificado en navegador en los cuatro sentidos (`login`, `welcome` y `dashboard` con sesión; `dashboard` sin ella). Pruebas: **13/13 en verde**. Lint: de 23 a **21 errores**, los restantes en T-032.
