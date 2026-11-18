@@ -1,8 +1,25 @@
 import { Routes } from '@angular/router';
-import { authGuard, onboardingGuard, publicOnlyGuard } from './core/auth/auth.guard';
+import { onboardingGuard, publicOnlyGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+  { path: '', pathMatch: 'full', redirectTo: 'home' },
+
+  // Flujo de Inicio y Movimientos «Saldo claro»
+  {
+    path: 'home',
+    loadComponent: () =>
+      import('./features/home/home.page').then((m) => m.HomePage),
+  },
+  {
+    path: 'dashboard',
+    redirectTo: 'home',
+    pathMatch: 'full',
+  },
+  {
+    path: 'movements',
+    loadComponent: () =>
+      import('./features/movements/movements.page').then((m) => m.MovementsPage),
+  },
 
   // Flujo de Autenticación y Onboarding
   {
@@ -34,13 +51,5 @@ export const routes: Routes = [
       import('./features/auth/onboarding/onboarding.page').then((m) => m.OnboardingPage),
   },
 
-  // Área Protegida
-  {
-    path: 'dashboard',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/dashboard/dashboard.page').then((m) => m.DashboardPage),
-  },
-
-  { path: '**', redirectTo: 'dashboard' },
+  { path: '**', redirectTo: 'home' },
 ];

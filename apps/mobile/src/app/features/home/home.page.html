@@ -1,0 +1,188 @@
+<ion-header class="ion-no-border home-header">
+  <ion-toolbar class="home-toolbar">
+    <div class="header-inner">
+      <div class="header-branding">
+        <h1 class="page-title">Inicio</h1>
+        <span class="mock-badge" aria-label="Indicador: datos ficticios de demostración">
+          Datos ficticios
+        </span>
+      </div>
+
+      <div class="header-actions">
+        <!-- Selector de Cuenta con alcance visible -->
+        <div class="account-selector-box">
+          <label for="accountSelect" class="sr-only">Seleccionar cuenta</label>
+          <select
+            id="accountSelect"
+            [value]="stateService.selectedAccountId()"
+            (change)="onAccountChange($event)"
+            class="account-select"
+            aria-label="Alcance de cuenta seleccionado"
+          >
+            @for (acc of stateService.accounts(); track acc.id) {
+              <option [value]="acc.id">{{ acc.name }}</option>
+            }
+          </select>
+        </div>
+
+        <button type="button" class="btn-profile" (click)="goToProfile()" aria-label="Perfil y configuración">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>
+        </button>
+      </div>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="home-content">
+  <!-- Error Parcial con opción de reintento -->
+  @if (stateService.hasPartialError()) {
+    <div class="error-banner" role="alert">
+      <span>No se pudieron actualizar algunos datos recientes.</span>
+      <button type="button" class="btn-retry" (click)="retryLoad()">Reintentar</button>
+    </div>
+  }
+
+  <div class="responsive-layout">
+    <!-- COLUMNA PRINCIPAL -->
+    <div class="main-column">
+      <!-- 1. Bloque de Saldo en cuentas -->
+      <section class="saldo-card balance-hero" aria-labelledby="saldo-heading">
+        <div class="balance-scope-header">
+          <span id="saldo-heading" class="balance-label">Saldo en cuentas</span>
+          <span class="account-tag">{{ stateService.currentAccount().name }}</span>
+        </div>
+
+        <div class="balance-amount-display">
+          @if (stateService.isLoading()) {
+            <div class="skeleton-text skeleton-balance" aria-hidden="true"></div>
+          } @else {
+            <span class="balance-value tabular-nums" [class.negative]="stateService.currentBalanceCents() < 0">
+              {{ stateService.currentBalanceCents() | money }}
+            </span>
+          }
+        </div>
+
+        <!-- Acción Principal Destacada: Registrar Movimiento -->
+        <div class="balance-action-row">
+          <button
+            type="button"
+            class="btn-saldo-primary btn-record-hero"
+            (click)="openRecordModal()"
+            aria-label="Registrar nuevo movimiento de ingreso o gasto"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+            <span>Registrar movimiento</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 2. Movimientos Recientes (Hasta 3) -->
+      <section class="saldo-card recent-movements-section" aria-labelledby="recent-heading">
+        <div class="section-header">
+          <h2 id="recent-heading" class="section-title">Movimientos recientes</h2>
+          <button type="button" class="btn-link" (click)="goToMovements()">
+            <span>Ver movimientos</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+          </button>
+        </div>
+
+        @if (stateService.movements().length === 0) {
+          <div class="empty-state">
+            <p>Aún no tienes movimientos registrados en este período.</p>
+            <button type="button" class="btn-saldo-secondary" (click)="openRecordModal()">
+              Registrar el primero
+            </button>
+          </div>
+        } @else {
+          <div class="movements-list" role="list">
+            @for (mov of stateService.movements().slice(0, 3); track mov.id) {
+              <app-movement-row
+                [movement]="mov"
+                (selectMovement)="openDetail($event)"
+              ></app-movement-row>
+            }
+          </div>
+        }
+      </section>
+    </div>
+
+    <!-- COLUMNA LATERAL (En escritorio) O SECUNDARIA (En móvil) -->
+    <div class="side-column">
+      <!-- 3. Resumen Mensual: Ingresos, Gastos y Flujo Neto -->
+      <section class="saldo-card month-summary-section" aria-labelledby="month-heading">
+        <div class="section-header">
+          <h2 id="month-heading" class="section-title">Este mes</h2>
+          <span class="period-badge">Noviembre 2026</span>
+        </div>
+
+        <div class="summary-grid">
+          <div class="summary-item">
+            <span class="item-label">Ingresos</span>
+            <span class="item-value income tabular-nums">
+              {{ stateService.monthSummary().incomeCents | money }}
+            </span>
+          </div>
+
+          <div class="summary-item">
+            <span class="item-label">Gastos</span>
+            <span class="item-value expense tabular-nums">
+              {{ stateService.monthSummary().expenseCents | money }}
+            </span>
+          </div>
+
+          <div class="summary-item net-flow-item">
+            <span class="item-label">Flujo neto del mes</span>
+            <span
+              class="item-value net-flow tabular-nums"
+              [class.positive]="stateService.monthSummary().netFlowCents >= 0"
+              [class.negative]="stateService.monthSummary().netFlowCents < 0"
+            >
+              {{ stateService.monthSummary().netFlowCents | money:{ forceSign: true } }}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Pagos Próximos (Próximos 7 días) -->
+      <section class="saldo-card upcoming-payments-section" aria-labelledby="upcoming-heading">
+        <div class="section-header">
+          <h2 id="upcoming-heading" class="section-title">Pagos próximos</h2>
+          <span class="period-badge">Próximos 7 días</span>
+        </div>
+
+        <div class="payments-list" role="list">
+          @for (pay of stateService.upcomingPayments(); track pay.id) {
+            <div class="payment-item" role="listitem">
+              <div class="payment-info">
+                <span class="payment-desc">{{ pay.description }}</span>
+                <span class="payment-meta">{{ pay.accountName }} • Vence: {{ pay.dueDate }}</span>
+              </div>
+              <span class="payment-amount tabular-nums">
+                {{ pay.amountCents | money }}
+              </span>
+            </div>
+          }
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Modal de Registro / Edición -->
+  @if (showRecordModal) {
+    <app-quick-record-modal
+      [editMovement]="movementToEdit"
+      (closeModal)="closeRecordModal()"
+      (saved)="onMovementSaved()"
+    ></app-quick-record-modal>
+  }
+
+  <!-- Modal de Detalle de Movimiento -->
+  @if (selectedMovementForDetail) {
+    <app-movement-detail-modal
+      [movement]="selectedMovementForDetail"
+      (closeModal)="closeDetail()"
+      (edit)="editFromDetail($event)"
+      (delete)="deleteFromDetail($event)"
+    ></app-movement-detail-modal>
+  }
+</ion-content>

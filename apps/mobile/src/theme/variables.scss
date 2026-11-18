@@ -1,72 +1,106 @@
 /**
- * Design System - Tokens de Color, Tipografía y Componentes
- * Propiedad de Antigravity (UX/UI & Design System)
- * Paleta coherente con el prototipo histórico y accesible (WCAG AA).
+ * Sistema de Diseño «Saldo claro» · Tokens de Color, Tipografía, Espaciado y Radios
+ * Aprobado y especificado en docs/design/DESIGN_SYSTEM.md
+ * WCAG 2.2 AA verificado en temas claro y oscuro.
  */
 
 :root {
-  --ion-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --ion-font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
-  /* Colores Principales del Sistema */
-  --ion-color-primary: #4f46e5;
-  --ion-color-primary-rgb: 79, 70, 229;
+  /* Acción Principal / Enlace / Destino Activo (Petróleo) */
+  --ion-color-primary: #0d6058;
+  --ion-color-primary-rgb: 13, 96, 88;
   --ion-color-primary-contrast: #ffffff;
-  --ion-color-primary-shade: #4338ca;
-  --ion-color-primary-tint: #6366f1;
+  --ion-color-primary-shade: #0b514b;
+  --ion-color-primary-tint: #1c726a;
 
-  /* Verde Ingresos */
-  --ion-color-success: #10b981;
-  --ion-color-success-rgb: 16, 185, 129;
+  /* Ingreso / Éxito / Confirmación */
+  --ion-color-success: #176345;
+  --ion-color-success-rgb: 23, 99, 69;
   --ion-color-success-contrast: #ffffff;
-  --ion-color-success-shade: #059669;
-  --ion-color-success-tint: #34d399;
+  --ion-color-success-shade: #13533a;
+  --ion-color-success-tint: #267957;
 
-  /* Rojo Gastos */
-  --ion-color-danger: #f43f5e;
-  --ion-color-danger-rgb: 244, 63, 94;
+  /* Gasto / Error / Destructivo */
+  --ion-color-danger: #9c343b;
+  --ion-color-danger-rgb: 156, 52, 59;
   --ion-color-danger-contrast: #ffffff;
-  --ion-color-danger-shade: #e11d48;
-  --ion-color-danger-tint: #fb7185;
+  --ion-color-danger-shade: #852a30;
+  --ion-color-danger-tint: #ab444b;
 
-  /* Ámbar Cuentas y Avisos */
-  --ion-color-warning: #f59e0b;
-  --ion-color-warning-rgb: 245, 158, 11;
-  --ion-color-warning-contrast: #000000;
-  --ion-color-warning-shade: #d97706;
-  --ion-color-warning-tint: #fbbf24;
+  /* Aviso / Próximos Vencimientos */
+  --ion-color-warning: #775216;
+  --ion-color-warning-rgb: 119, 82, 22;
+  --ion-color-warning-contrast: #ffffff;
+  --ion-color-warning-shade: #634311;
+  --ion-color-warning-tint: #8a601e;
 
-  /* Fondos y Superficies Modo Claro */
-  --app-bg-color: #f8fafc;
+  /* Fondos y Superficies Modo Claro (Marfil / Grafito) */
+  --app-bg-color: #f7f6f1;
   --app-surface-color: #ffffff;
-  --app-border-color: #e2e8f0;
-  --app-text-primary: #0f172a;
-  --app-text-secondary: #64748b;
-  --app-text-muted: #94a3b8;
+  --app-text-primary: #202825;
+  --app-text-secondary: #53605a;
+  --app-border-color: #dfe3db;
+  --app-control-border: #77847d;
+  --app-focus-ring: #176853;
 
-  /* Sombras y Radios */
+  /* Espaciado del Sistema */
+  --app-space-1: 4px;
+  --app-space-2: 8px;
+  --app-space-3: 12px;
+  --app-space-4: 16px;
+  --app-space-6: 24px;
+  --app-space-8: 32px;
+  --app-space-12: 48px;
+
+  /* Radios de Borde */
   --app-radius-sm: 8px;
-  --app-radius-md: 14px;
-  --app-radius-lg: 20px;
-  --app-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
-  --app-shadow-elevated: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  --app-radius-md: 12px;
+  --app-radius-lg: 16px;
+  --app-radius-full: 9999px;
+
+  /* Elevación (Elevación cero en contenido, overlay para diálogos/hojas) */
+  --app-shadow-none: none;
+  --app-shadow-overlay: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+  /* Transiciones y Movimiento */
+  --app-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Modo Oscuro Automático y Manual */
 @media (prefers-color-scheme: dark) {
-  body.adaptive-dark, :root {
-    --app-bg-color: #0b0f19;
-    --app-surface-color: #151c2c;
-    --app-border-color: #242f47;
-    --app-text-primary: #f8fafc;
-    --app-text-secondary: #94a3b8;
-    --app-text-muted: #64748b;
+  :root {
+    --ion-color-primary: #72d5c0;
+    --ion-color-primary-rgb: 114, 213, 192;
+    --ion-color-primary-contrast: #0d211d;
+    --ion-color-primary-shade: #60c1ad;
+    --ion-color-primary-tint: #84dbca;
 
-    --ion-color-primary: #6366f1;
-    --ion-color-primary-shade: #4f46e5;
-    --ion-color-primary-tint: #818cf8;
+    --ion-color-success: #8adcb2;
+    --ion-color-success-rgb: 138, 220, 178;
+    --ion-color-success-contrast: #0d211d;
+    --ion-color-success-shade: #76ca9f;
+    --ion-color-success-tint: #9ee2be;
 
-    --ion-color-success: #34d399;
-    --ion-color-danger: #fb7185;
-    --ion-color-warning: #fbbf24;
+    --ion-color-danger: #ffacad;
+    --ion-color-danger-rgb: 255, 172, 173;
+    --ion-color-danger-contrast: #202825;
+    --ion-color-danger-shade: #e99596;
+    --ion-color-danger-tint: #ffb8b9;
+
+    --ion-color-warning: #f4cf83;
+    --ion-color-warning-rgb: 244, 207, 131;
+    --ion-color-warning-contrast: #202825;
+    --ion-color-warning-shade: #ddba6e;
+    --ion-color-warning-tint: #f6d695;
+
+    --app-bg-color: #141b19;
+    --app-surface-color: #202926;
+    --app-text-primary: #eaf2ee;
+    --app-text-secondary: #aabbb3;
+    --app-border-color: #394741;
+    --app-control-border: #84968d;
+    --app-focus-ring: #80e1cd;
+    --app-shadow-overlay: 0 8px 24px rgba(0, 0, 0, 0.45);
   }
 }

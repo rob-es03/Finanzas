@@ -1,0 +1,180 @@
+<div class="modal-backdrop" (click)="onBackdropClick()" role="presentation"></div>
+
+<div class="record-dialog" role="dialog" aria-modal="true" aria-labelledby="record-title">
+  <!-- Cabecera de la hoja/diálogo -->
+  <header class="dialog-header">
+    <div class="drag-handle-bar" aria-hidden="true"></div>
+    <div class="header-content">
+      <h2 id="record-title" class="dialog-title">
+        {{ editMovement ? 'Editar movimiento' : 'Registrar movimiento' }}
+      </h2>
+      <button type="button" class="btn-close" (click)="onBackdropClick()" aria-label="Cerrar formulario">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="dialog-body">
+    <!-- Selector de Tipo: Gasto / Ingreso -->
+    <div class="type-toggle-group" role="radiogroup" aria-label="Tipo de movimiento">
+      <button
+        type="button"
+        role="radio"
+        [attr.aria-checked]="type === 'expense'"
+        class="toggle-btn"
+        [class.active-expense]="type === 'expense'"
+        (click)="setType('expense')"
+      >
+        <span>- Gasto / Pago</span>
+      </button>
+      <button
+        type="button"
+        role="radio"
+        [attr.aria-checked]="type === 'income'"
+        class="toggle-btn"
+        [class.active-income]="type === 'income'"
+        (click)="setType('income')"
+      >
+        <span>+ Ingreso</span>
+      </button>
+    </div>
+
+    <!-- Fila de Atajos Rápidos (Medición T-020: Abrir -> Atajo -> Guardar) -->
+    @if (!editMovement && availablePresets.length > 0) {
+      <div class="presets-section">
+        <span class="presets-label">Atajos rápidos (1 toque):</span>
+        <div class="presets-scroll" role="list">
+          @for (preset of availablePresets; track preset.id) {
+            <button
+              type="button"
+              class="preset-chip"
+              (click)="applyPreset(preset)"
+              [attr.aria-label]="'Atajo rápido: ' + preset.label"
+            >
+              <span>{{ preset.label }}</span>
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Alerta de Error que conserva los campos -->
+    @if (errorMessage) {
+      <div class="form-error-alert" role="alert">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" /></svg>
+        <span>{{ errorMessage }}</span>
+      </div>
+    }
+
+    <form (ngSubmit)="save()" class="record-form">
+      <!-- Importe destacado con teclado decimal -->
+      <div class="form-group amount-group">
+        <label for="amountInput">Importe en USD</label>
+        <div class="amount-input-box">
+          <span class="currency-prefix">$</span>
+          <input
+            id="amountInput"
+            type="number"
+            step="0.01"
+            inputmode="decimal"
+            placeholder="0.00"
+            [(ngModel)]="amountInput"
+            name="amountInput"
+            required
+            class="amount-field tabular-nums"
+          />
+        </div>
+      </div>
+
+      <!-- Descripción -->
+      <div class="form-group">
+        <label for="description">Descripción</label>
+        <input
+          id="description"
+          type="text"
+          placeholder="Ej. Almuerzo, Quincena, Luz..."
+          [(ngModel)]="description"
+          name="description"
+          required
+          class="text-field"
+        />
+      </div>
+
+      <!-- Fila Cuenta y Categoría -->
+      <div class="form-row">
+        <div class="form-group flex-1">
+          <label for="accountSelect">Cuenta</label>
+          <select id="accountSelect" [(ngModel)]="selectedAccountId" name="selectedAccountId" class="select-field">
+            @for (acc of stateService.accounts(); track acc.id) {
+              @if (acc.id !== 'all') {
+                <option [value]="acc.id">{{ acc.name }}</option>
+              }
+            }
+          </select>
+        </div>
+
+        <div class="form-group flex-1">
+          <label for="categorySelect">Categoría</label>
+          <select id="categorySelect" [(ngModel)]="selectedCategoryId" name="selectedCategoryId" class="select-field">
+            @for (cat of availableCategories; track cat.id) {
+              <option [value]="cat.id">{{ cat.name }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <!-- Fecha -->
+      <div class="form-group">
+        <label for="dateInput">Fecha del movimiento</label>
+        <input
+          id="dateInput"
+          type="date"
+          [(ngModel)]="date"
+          name="date"
+          required
+          class="text-field"
+        />
+      </div>
+
+      <!-- Nota adicional opcional -->
+      <div class="form-group">
+        <label for="noteInput">Nota opcional</label>
+        <input
+          id="noteInput"
+          type="text"
+          placeholder="Detalles adicionales..."
+          [(ngModel)]="note"
+          name="note"
+          class="text-field"
+        />
+      </div>
+
+      <!-- Confirmación de descarte de cambios -->
+      @if (showDiscardConfirm) {
+        <div class="discard-confirm-box" role="alert">
+          <p>¿Descartar los cambios no guardados?</p>
+          <div class="confirm-buttons">
+            <button type="button" class="btn-cancel" (click)="cancelDiscard()">Seguir editando</button>
+            <button type="button" class="btn-discard" (click)="confirmDiscard()">Descartar</button>
+          </div>
+        </div>
+      }
+
+      <!-- Botón de Envío accesible con teclado abierto -->
+      <footer class="form-actions">
+        <button
+          type="submit"
+          class="btn-save btn-saldo-primary"
+          [disabled]="isSaving"
+        >
+          @if (isSaving) {
+            <span class="spinner-sm" aria-hidden="true"></span>
+            <span>Guardando...</span>
+          } @else {
+            <span>{{ editMovement ? 'Guardar cambios' : 'Guardar movimiento' }}</span>
+          }
+        </button>
+      </footer>
+    </form>
+  </div>
+</div>

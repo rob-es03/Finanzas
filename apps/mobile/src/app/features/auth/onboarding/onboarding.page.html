@@ -103,8 +103,8 @@
 
               <div class="account-item-inputs">
                 <div class="input-half">
-                  <label>Tipo</label>
-                  <select [(ngModel)]="acc.type" class="small-select">
+                  <label [attr.for]="'acc-type-' + i">Tipo</label>
+                  <select [id]="'acc-type-' + i" [(ngModel)]="acc.type" class="small-select">
                     <option value="bank">Banco</option>
                     <option value="cash">Efectivo</option>
                     <option value="savings">Ahorros</option>
@@ -113,8 +113,9 @@
                 </div>
 
                 <div class="input-half">
-                  <label>Saldo Inicial ($)</label>
+                  <label [attr.for]="'acc-bal-' + i">Saldo Inicial ($)</label>
                   <input
+                    [id]="'acc-bal-' + i"
                     type="number"
                     step="0.01"
                     [(ngModel)]="acc.balanceInput"
