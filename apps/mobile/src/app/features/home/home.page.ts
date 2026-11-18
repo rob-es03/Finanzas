@@ -2,10 +2,9 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Movement } from '@finanzas/contracts';
-import { IonContent, IonHeader, IonToolbar } from '@ionic/angular';
+import { IonContent } from '@ionic/angular';
 import { FinancialStateService } from '../../data/financial-state.service';
 import { MovementDetailModalComponent } from '../../shared/components/movement-detail/movement-detail-modal.component';
-import { MovementRowComponent } from '../../shared/components/movement-row/movement-row.component';
 import { QuickRecordModalComponent } from '../../shared/components/quick-record/quick-record-modal.component';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
 
@@ -15,10 +14,7 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
   imports: [
     CommonModule,
     IonContent,
-    IonHeader,
-    IonToolbar,
     MoneyPipe,
-    MovementRowComponent,
     QuickRecordModalComponent,
     MovementDetailModalComponent,
   ],
@@ -28,6 +24,9 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
 export class HomePage {
   readonly stateService = inject(FinancialStateService);
   private readonly router = inject(Router);
+
+  // Tab activo estilo Revolut (Cuentas, Analítica, Tarjetas, Metas)
+  activeTab: 'accounts' | 'analytics' | 'cards' | 'vaults' = 'accounts';
 
   // Estados modales
   showRecordModal = false;

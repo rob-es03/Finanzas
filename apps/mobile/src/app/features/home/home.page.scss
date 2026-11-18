@@ -1,340 +1,882 @@
-.home-header {
-  background-color: var(--app-surface-color);
-  border-bottom: 1px solid var(--app-border-color);
+.revolut-home-container {
+  --background: var(--app-bg-color);
+  position: relative;
+  overflow-x: hidden;
 }
 
-.home-toolbar {
-  --background: var(--app-surface-color);
-  --color: var(--app-text-primary);
-  --padding-top: var(--app-space-2);
-  --padding-bottom: var(--app-space-2);
-  --padding-start: var(--app-space-4);
-  --padding-end: var(--app-space-4);
+.rev-screen-wrapper {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0.75rem 1rem 5.5rem;
+  box-sizing: border-box;
+
+  @media (min-width: 768px) {
+    max-width: 540px;
+    padding-top: 1.25rem;
+  }
 }
 
-.header-inner {
+/* 1. Header estilo Revolut */
+.revolut-header {
+  margin-bottom: 1.25rem;
+}
+
+.header-top-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
+  margin-bottom: 1rem;
 }
 
-.header-branding {
+.btn-avatar {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: var(--app-space-2);
-
-  .page-title {
-    margin: 0;
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: var(--app-text-primary);
-  }
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--app-space-2);
-}
-
-.account-selector-box {
-  .account-select {
-    min-height: 40px;
-    padding: 0 10px;
-    background-color: var(--app-bg-color);
-    border: 1px solid var(--app-control-border);
-    border-radius: var(--app-radius-sm);
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--app-text-primary);
-    outline: none;
-
-    &:focus {
-      border-color: var(--ion-color-primary);
-    }
-  }
-}
-
-.btn-profile {
-  width: 40px;
-  height: 40px;
+  justify-content: center;
   background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+
+  .avatar-circle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-primary-shade) 100%);
+    color: var(--ion-color-primary-contrast);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--app-surface-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  }
+
+  .status-indicator {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--ion-color-success);
+    border: 2px solid var(--app-surface-color);
+  }
+}
+
+.mock-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 8px;
+  border-radius: var(--app-radius-full);
+  background: rgba(13, 96, 88, 0.08);
+  color: var(--ion-color-primary);
+  border: 1px solid rgba(13, 96, 88, 0.15);
+
+  @media (prefers-color-scheme: dark) {
+    background: rgba(114, 213, 192, 0.1);
+    color: var(--ion-color-primary);
+    border-color: rgba(114, 213, 192, 0.2);
+  }
+}
+
+.header-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-icon-ghost {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--app-surface-color);
   border: 1px solid var(--app-border-color);
-  border-radius: var(--app-radius-sm);
   color: var(--app-text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition: transform var(--app-transition-fast), color var(--app-transition-fast);
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    color: var(--app-text-primary);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+/* Segment Tabs estilo Revolut */
+.segment-tabs-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 2px 0;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.segment-pill {
+  padding: 7px 16px;
+  border-radius: var(--app-radius-full);
+  border: none;
+  background: transparent;
+  color: var(--app-text-secondary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--app-transition-fast);
+
+  &:hover {
+    color: var(--app-text-primary);
+  }
+
+  &.active {
+    background: var(--app-surface-color);
+    color: var(--app-text-primary);
+    font-weight: 700;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+
+    @media (prefers-color-scheme: dark) {
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--app-border-color);
+    }
+  }
+}
+
+/* Error Banner */
+.rev-error-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(156, 52, 59, 0.1);
+  border: 1px solid var(--ion-color-danger);
+  border-radius: var(--app-radius-md);
+  padding: 0.65rem 0.9rem;
+  font-size: 0.8rem;
+  color: var(--ion-color-danger);
+  margin-bottom: 1rem;
+
+  .btn-retry {
+    background: transparent;
+    border: 1px solid var(--ion-color-danger);
+    color: var(--ion-color-danger);
+    border-radius: var(--app-radius-sm);
+    padding: 3px 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+}
+
+/* Base Card Revolut */
+.rev-card {
+  background: var(--app-surface-color);
+  border: 1px solid var(--app-border-color);
+  border-radius: 24px;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+
+  @media (prefers-color-scheme: dark) {
+    box-shadow: 0 6px 24px -2px rgba(0, 0, 0, 0.35);
+  }
+}
+
+/* 2. Hero Balance Card */
+.hero-balance-card {
+  padding: 1.25rem 1.25rem 1.15rem;
+}
+
+.hero-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.account-select-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  background: var(--app-bg-color);
+  border: 1px solid var(--app-border-color);
+  border-radius: var(--app-radius-full);
+  padding: 5px 28px 5px 12px;
+  cursor: pointer;
+  transition: border-color var(--app-transition-fast);
+
+  &:hover {
+    border-color: var(--ion-color-primary);
+  }
+
+  .revolut-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+    border: none;
+    font-size: 0.825rem;
+    font-weight: 700;
+    color: var(--app-text-primary);
+    cursor: pointer;
+    outline: none;
+    padding-right: 4px;
+  }
+
+  .select-chevron {
+    position: absolute;
+    right: 10px;
+    width: 14px;
+    height: 14px;
+    color: var(--app-text-secondary);
+    pointer-events: none;
+  }
+}
+
+.currency-flag-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--app-bg-color);
+  border: 1px solid var(--app-border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+}
+
+.hero-balance-content {
+  margin: 0.25rem 0 0.5rem;
+}
+
+.balance-amount {
+  font-size: 2.35rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--app-text-primary);
+  letter-spacing: -0.04em;
+  margin: 0;
+
+  &.negative {
+    color: var(--ion-color-danger);
+  }
+}
+
+.balance-currency-meta {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--app-text-secondary);
+  margin-top: 4px;
+}
+
+.skeleton-balance {
+  width: 180px;
+  height: 44px;
+  background: var(--app-border-color);
+  border-radius: 8px;
+  animation: pulse-skeleton 1.5s infinite;
+}
+
+@keyframes pulse-skeleton {
+  0% { opacity: 0.6; }
+  50% { opacity: 0.3; }
+  100% { opacity: 0.6; }
+}
+
+/* Sparkline Wave */
+.sparkline-wrapper {
+  width: 100%;
+  height: 48px;
+  margin: 0.25rem 0 1rem;
+  overflow: hidden;
+}
+
+.sparkline-svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Pastillas de acción Revolut (+ Registrar, -> Movimientos, ...) */
+.hero-action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1.25rem;
+}
+
+.rev-pill-btn {
+  height: 42px;
+  border-radius: var(--app-radius-full);
+  font-size: 0.875rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  cursor: pointer;
+  border: none;
+  transition: transform var(--app-transition-fast), opacity var(--app-transition-fast), background-color var(--app-transition-fast);
+
+  svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  &.primary {
+    flex: 1.2;
+    background-color: rgba(13, 96, 88, 0.1);
+    color: var(--ion-color-primary);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: rgba(114, 213, 192, 0.16);
+      color: var(--ion-color-primary);
+    }
+
+    &:hover {
+      background-color: rgba(13, 96, 88, 0.18);
+      transform: translateY(-1px);
+    }
+  }
+
+  &.secondary {
+    flex: 1.2;
+    background-color: var(--app-bg-color);
+    color: var(--app-text-primary);
+    border: 1px solid var(--app-border-color);
+
+    &:hover {
+      border-color: var(--app-control-border);
+      transform: translateY(-1px);
+    }
+  }
+
+  &.icon-only {
+    width: 42px;
+    flex-shrink: 0;
+    background-color: var(--app-bg-color);
+    color: var(--app-text-secondary);
+    border: 1px solid var(--app-border-color);
+
+    &:hover {
+      color: var(--app-text-primary);
+      transform: translateY(-1px);
+    }
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+/* Transacciones Embebidas en la Tarjeta Principal */
+.card-transactions-embed {
+  border-top: 1px solid var(--app-border-color);
+  padding-top: 1rem;
+}
+
+.transactions-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.tx-section-heading {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--app-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.btn-see-all {
+  background: transparent;
+  border: none;
+  font-size: 0.825rem;
+  font-weight: 700;
+  color: var(--ion-color-primary);
+  cursor: pointer;
+  padding: 0;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.empty-transactions-box {
+  text-align: center;
+  padding: 1.5rem 0;
+  color: var(--app-text-secondary);
+  font-size: 0.85rem;
+
+  .btn-text-link {
+    background: transparent;
+    border: none;
+    color: var(--ion-color-primary);
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 6px;
+  }
+}
+
+.transactions-list-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rev-tx-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 6px;
+  border-radius: var(--app-radius-md);
+  cursor: pointer;
+  transition: background-color var(--app-transition-fast);
+
+  &:hover {
+    background-color: rgba(13, 96, 88, 0.04);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: rgba(255, 255, 255, 0.04);
+    }
+  }
+
+  &:active {
+    transform: scale(0.99);
+  }
+}
+
+.tx-avatar-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 
   svg {
     width: 20px;
     height: 20px;
   }
-}
 
-.home-content {
-  --background: var(--app-bg-color);
-}
+  &.income {
+    background-color: rgba(23, 99, 69, 0.12);
+    color: var(--ion-color-success);
 
-.responsive-layout {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: var(--app-space-4);
-  display: flex;
-  flex-direction: column;
-  gap: var(--app-space-4);
-
-  @media (min-width: 960px) {
-    display: grid;
-    grid-template-columns: 7fr 5fr;
-    gap: var(--app-space-6);
-  }
-}
-
-.main-column, .side-column {
-  display: flex;
-  flex-direction: column;
-  gap: var(--app-space-4);
-}
-
-/* Balance Hero */
-.balance-hero {
-  padding: var(--app-space-6) var(--app-space-4);
-  text-align: center;
-
-  .balance-scope-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: var(--app-space-2);
-
-    .balance-label {
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: var(--app-text-secondary);
-    }
-
-    .account-tag {
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: var(--app-radius-full);
-      background-color: rgba(13, 96, 88, 0.1);
-      color: var(--ion-color-primary);
+    @media (prefers-color-scheme: dark) {
+      background-color: rgba(138, 220, 178, 0.16);
     }
   }
 
-  .balance-amount-display {
-    margin: var(--app-space-2) 0 var(--app-space-6);
+  &.expense {
+    background-color: rgba(156, 52, 59, 0.12);
+    color: var(--ion-color-danger);
 
-    .balance-value {
-      font-size: 2.75rem;
-      font-weight: 800;
+    @media (prefers-color-scheme: dark) {
+      background-color: rgba(255, 172, 173, 0.16);
+    }
+  }
+}
+
+.tx-info-col {
+  flex: 1;
+  min-width: 0;
+
+  .tx-desc-title {
+    display: block;
+    font-size: 0.925rem;
+    font-weight: 700;
+    color: var(--app-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .tx-meta-subtitle {
+    display: block;
+    font-size: 0.775rem;
+    color: var(--app-text-secondary);
+    margin-top: 2px;
+  }
+}
+
+.tx-amount-col {
+  flex-shrink: 0;
+  text-align: right;
+
+  .tx-amount-val {
+    font-size: 0.95rem;
+    font-weight: 700;
+
+    &.text-income {
+      color: var(--ion-color-success);
+    }
+
+    &.text-expense {
       color: var(--app-text-primary);
-      line-height: 1.1;
-
-      &.negative {
-        color: var(--ion-color-danger);
-      }
-    }
-  }
-
-  .balance-action-row {
-    .btn-record-hero {
-      width: 100%;
-      max-width: 320px;
-      margin: 0 auto;
-      font-size: 1.05rem;
-
-      svg {
-        width: 20px;
-        height: 20px;
-      }
     }
   }
 }
 
-/* Cabeceras de sección */
-.section-header {
+/* 3. Sección de Analítica Revolut (2 Tarjetas lado a lado) */
+.analytics-section {
+  margin-top: 1.25rem;
+}
+
+.section-title-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--app-space-3);
+  margin-bottom: 0.75rem;
+  padding: 0 4px;
+}
 
-  .section-title {
-    margin: 0;
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: var(--app-text-primary);
+.section-heading-text {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--app-text-primary);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.period-pill-text {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--app-text-secondary);
+}
+
+.analytics-two-col-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.metric-widget-card {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.widget-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--app-text-secondary);
+}
+
+.widget-badge {
+  font-size: 0.675rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: var(--app-radius-full);
+
+  &.danger {
+    background: rgba(156, 52, 59, 0.12);
+    color: var(--ion-color-danger);
   }
 
-  .btn-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background: transparent;
-    border: none;
-    color: var(--ion-color-primary);
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
+  &.success {
+    background: rgba(23, 99, 69, 0.12);
+    color: var(--ion-color-success);
+  }
+}
 
-    svg {
-      width: 16px;
-      height: 16px;
+.widget-amount-row {
+  margin-bottom: 10px;
+
+  .widget-amount-value {
+    font-size: 1.25rem;
+    font-weight: 800;
+    line-height: 1.2;
+
+    &.text-income {
+      color: var(--ion-color-success);
+    }
+
+    &.text-expense {
+      color: var(--app-text-primary);
+    }
+  }
+}
+
+/* Micro Gráfico de Barras estilo Revolut */
+.mini-bar-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 38px;
+  gap: 4px;
+  padding-top: 6px;
+}
+
+.bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+  gap: 3px;
+
+  .bar-fill {
+    width: 6px;
+    border-radius: 4px;
+    background-color: var(--app-border-color);
+    transition: height var(--app-transition-fast), background-color var(--app-transition-fast);
+
+    &.active {
+      background-color: var(--ion-color-primary);
+      box-shadow: 0 0 8px rgba(13, 96, 88, 0.35);
+
+      @media (prefers-color-scheme: dark) {
+        box-shadow: 0 0 8px rgba(114, 213, 192, 0.45);
+      }
     }
   }
 
-  .period-badge {
-    font-size: 0.75rem;
+  .bar-label {
+    font-size: 0.625rem;
     font-weight: 600;
     color: var(--app-text-secondary);
   }
 }
 
-/* Resumen Mensual */
-.summary-grid {
+/* Barra de Progreso */
+.progress-container {
   display: flex;
   flex-direction: column;
-  gap: var(--app-space-3);
-
-  .summary-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--app-space-2) 0;
-    border-bottom: 1px solid var(--app-border-color);
-
-    .item-label {
-      font-size: 0.9rem;
-      color: var(--app-text-secondary);
-    }
-
-    .item-value {
-      font-size: 1.1rem;
-      font-weight: 700;
-
-      &.income {
-        color: var(--ion-color-success);
-      }
-
-      &.expense {
-        color: var(--ion-color-danger);
-      }
-    }
-
-    &.net-flow-item {
-      border-bottom: none;
-      padding-top: var(--app-space-3);
-
-      .item-label {
-        font-weight: 600;
-        color: var(--app-text-primary);
-      }
-
-      .net-flow {
-        font-size: 1.25rem;
-        font-weight: 800;
-
-        &.positive {
-          color: var(--ion-color-success);
-        }
-
-        &.negative {
-          color: var(--ion-color-danger);
-        }
-      }
-    }
-  }
+  gap: 6px;
+  margin-top: 6px;
 }
 
-/* Pagos Próximos */
-.payments-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--app-space-2);
-
-  .payment-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--app-space-2) 0;
-    border-bottom: 1px solid var(--app-border-color);
-
-    &:last-child {
-      border-bottom: none;
-    }
-
-    .payment-info {
-      display: flex;
-      flex-direction: column;
-
-      .payment-desc {
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: var(--app-text-primary);
-      }
-
-      .payment-meta {
-        font-size: 0.775rem;
-        color: var(--app-text-secondary);
-        margin-top: 2px;
-      }
-    }
-
-    .payment-amount {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--app-text-primary);
-    }
-  }
+.progress-track-bar {
+  width: 100%;
+  height: 6px;
+  border-radius: var(--app-radius-full);
+  background-color: var(--app-border-color);
+  overflow: hidden;
 }
 
-.empty-state {
-  text-align: center;
-  padding: var(--app-space-6) var(--app-space-4);
+.progress-fill-bar {
+  height: 100%;
+  border-radius: var(--app-radius-full);
+  background: linear-gradient(90deg, var(--ion-color-primary) 0%, var(--ion-color-success) 100%);
+}
+
+.progress-footer-meta {
+  font-size: 0.7rem;
   color: var(--app-text-secondary);
-  font-size: 0.9rem;
-
-  p {
-    margin: 0 0 var(--app-space-3);
-  }
 }
 
-.error-banner {
-  background-color: rgba(156, 52, 59, 0.1);
-  border-bottom: 1px solid var(--ion-color-danger);
-  padding: var(--app-space-2) var(--app-space-4);
+/* 4. Pagos Próximos */
+.upcoming-bills-card {
+  margin-top: 1.25rem;
+  padding: 1.15rem;
+}
+
+.upcoming-header-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 0.85rem;
-  color: var(--ion-color-danger);
+  margin-bottom: 0.85rem;
+}
 
-  .btn-retry {
-    background: var(--ion-color-danger);
-    color: #ffffff;
-    border: none;
-    padding: 4px 10px;
-    border-radius: var(--app-radius-sm);
-    font-size: 0.775rem;
-    font-weight: 600;
-    cursor: pointer;
+.upcoming-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.upcoming-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: var(--app-radius-full);
+  background: rgba(119, 82, 22, 0.1);
+  color: var(--ion-color-warning);
+}
+
+.upcoming-list-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.upcoming-row-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--app-border-color);
+    padding-bottom: 8px;
   }
 }
 
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
+.upcoming-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(119, 82, 22, 0.1);
+  color: var(--ion-color-warning);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.upcoming-details {
+  flex: 1;
+  min-width: 0;
+
+  .upcoming-desc {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--app-text-primary);
+  }
+
+  .upcoming-sub {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--app-text-secondary);
+    margin-top: 2px;
+  }
+}
+
+.upcoming-amount-box {
+  flex-shrink: 0;
+
+  .upcoming-val {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--app-text-primary);
+  }
+}
+
+/* 5. Dock de Navegación Flotante estilo Revolut */
+.rev-floating-dock {
+  position: fixed;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 14px;
+  border-radius: 36px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--app-border-color);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.14);
+
+  @media (prefers-color-scheme: dark) {
+    background: rgba(24, 34, 30, 0.88);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.dock-action-btn {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--app-text-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform var(--app-transition-fast), color var(--app-transition-fast);
+
+  svg {
+    width: 21px;
+    height: 21px;
+  }
+
+  &:hover {
+    color: var(--app-text-primary);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: scale(0.92);
+  }
+
+  &.active {
+    color: var(--ion-color-primary);
+
+    .dock-active-dot {
+      position: absolute;
+      bottom: 4px;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background-color: var(--ion-color-primary);
+    }
+  }
+
+  /* Botón CTA Central Elevado */
+  &.dock-cta-circle {
+    width: 46px;
+    height: 46px;
+    background: var(--ion-color-primary);
+    color: var(--ion-color-primary-contrast);
+    box-shadow: 0 4px 14px rgba(13, 96, 88, 0.35);
+
+    @media (prefers-color-scheme: dark) {
+      box-shadow: 0 4px 16px rgba(114, 213, 192, 0.35);
+    }
+
+    svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    &:hover {
+      opacity: 0.94;
+      transform: scale(1.05);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
 }
