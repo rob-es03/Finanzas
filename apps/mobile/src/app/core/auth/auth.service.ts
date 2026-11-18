@@ -130,6 +130,31 @@ export class AuthService {
         throw new Error(errorDescription);
       }
 
+      // Enlaces de correo (confirmación o recuperación). Se verifican con
+      // `token_hash`, que no necesita el `code_verifier` guardado en este
+      // navegador: por eso funcionan aunque el enlace se abra en el móvil
+      // mientras el registro se hizo en el ordenador, que es justo donde el
+      // intercambio PKCE fallaba con «code verifier not found in storage».
+      const tokenHash = parsedUrl.searchParams.get('token_hash');
+      const tipo = parsedUrl.searchParams.get('type');
+      if (tokenHash && tipo) {
+        const { data, error } = await supabase.auth.verifyOtp({
+          token_hash: tokenHash,
+          type: tipo as 'signup' | 'email' | 'recovery' | 'invite' | 'email_change',
+        });
+        if (error) throw new Error(this.mensajeDeError(error));
+        if (data.session) {
+          this._session.set(data.session);
+          await this.syncProfile(data.session.user);
+          if (tipo === 'recovery') {
+            this.router.navigate(['/auth/reset-password']);
+          } else {
+            this.redirectAfterAuth();
+          }
+        }
+        return;
+      }
+
       if (code) {
         // Intercambiar código PKCE por tokens de sesión
         const { data, error } = await supabase.auth.exchangeCodeForSession(code);
@@ -138,7 +163,19 @@ export class AuthService {
           // callback), puede existir ya una sesión válida. Comprobarlo antes de
           // dar el acceso por fallido evita un error que el usuario no entiende.
           const { data: { session: existing } } = await supabase.auth.getSession();
-          if (!existing) throw error;
+          if (!existing) {
+            // Caso típico del enlace de confirmación abierto en otro navegador:
+            // Supabase YA confirmó la cuenta, solo falta iniciar sesión aquí.
+            // El `code_verifier` vive en el navegador donde se hizo el registro,
+            // así que el intercambio no puede completarse en este. No es un
+            // fallo del alta y no debe presentarse como tal.
+            if (error.message.toLowerCase().includes('code verifier')) {
+              this._authError.set(null);
+              this.router.navigate(['/auth/login'], { queryParams: { confirmado: '1' } });
+              return;
+            }
+            throw new Error(this.mensajeDeError(error));
+          }
           this._session.set(existing);
           await this.syncProfile(existing.user);
           this.redirectAfterAuth();
@@ -297,6 +334,20 @@ export class AuthService {
     const supabase = this.supabaseService.db;
     const parsed = new URL(urlStr.replace('#', '?'));
     const code = parsed.searchParams.get('code');
+    const tokenHash = parsed.searchParams.get('token_hash');
+
+    // Enlace de recuperación con `token_hash`: no depende del navegador donde
+    // se pidió el cambio, así que funciona también desde el móvil.
+    if (tokenHash) {
+      const { data, error } = await supabase.auth.verifyOtp({
+        token_hash: tokenHash,
+        type: 'recovery',
+      });
+      if (!error && data.session) {
+        this._session.set(data.session);
+        return true;
+      }
+    }
 
     if (code) {
       const { data, error } = await supabase.auth.exchangeCodeForSession(code);
@@ -358,6 +409,15 @@ export class AuthService {
     }
     if (m.includes('unable to validate email') || m.includes('invalid format')) {
       return 'Revisa el formato del correo.';
+    }
+    if (m.includes('code verifier')) {
+      return 'Abre el enlace en el mismo navegador donde iniciaste el registro, o vuelve a intentarlo desde aquí.';
+    }
+    if (m.includes('token has expired') || m.includes('otp_expired') || m.includes('expired')) {
+      return 'El enlace caducó. Pide uno nuevo e inténtalo otra vez.';
+    }
+    if (m.includes('already confirmed')) {
+      return 'Esta cuenta ya estaba confirmada. Inicia sesión con tu correo y contraseña.';
     }
     return error.message;
   }

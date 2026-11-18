@@ -188,3 +188,17 @@ Integré en mi rama el rediseño de Inicio y Movimientos de Antigravity (`ui/T-0
 **Verificado de extremo a extremo**: con sesión real, registrar un gasto de 12,50 USD lo guarda en `transactions`, la vista `account_balances` devuelve `-1250` centavos y la pantalla muestra −$12,50, el movimiento en la lista y el resumen mensual en déficit. Queda un movimiento de prueba llamado «Prueba de integracion» que se puede borrar desde la propia aplicación.
 
 **Pendiente**: los atajos rápidos quedan vacíos a propósito (los del prototipo eran los pagos de una persona concreta); R-03 pide que cada usuario configure los suyos.
+
+### Marca Finza y confirmación de correo · 2026-11-17
+
+**La aplicación pasa a llamarse Finza.** Cambiado en `strings.xml` (`app_name`), `capacitor.config.ts`, el título de `index.html`, `package.json` y las pantallas de bienvenida, acceso y registro, donde ahora aparece el logo (`public/finza-logo.webp`). **El identificador `ec.finanzas.app` NO cambió**: de él cuelga el esquema de deep link registrado en Google y en `uri_allow_list`; renombrarlo obliga a rehacer esa configuración. Queda pendiente generar los iconos de lanzador de Android a partir del logo.
+
+**El error «PKCE code verifier not found in storage» al crear una cuenta.**
+La cuenta **sí se creaba y sí se confirmaba** (`confirmed_at` se registró diez segundos después del alta). Lo que fallaba era el aterrizaje posterior: el enlace del correo se abrió en un navegador distinto de aquel donde se hizo el registro, y el `code_verifier` del flujo PKCE vive en el almacenamiento del primero. Supabase había hecho su parte; la app presentaba un fallo técnico en inglés como si el registro se hubiera perdido.
+
+Tres cambios:
+1. **`token_hash`**: si el enlace trae `token_hash` y `type`, se verifica con `verifyOtp`, que no depende del navegador. Vale para confirmación y para recuperación.
+2. **Aterrizaje correcto**: si el intercambio falla por falta de verificador, se lleva a `auth/login?confirmado=1` con el aviso «Tu correo quedó confirmado», en vez de la pantalla de error.
+3. **Mensajes en español** para enlace caducado, cuenta ya confirmada y verificador ausente.
+
+**Limitación encontrada**: cambiar las plantillas de correo para que usen `token_hash` **no es posible en el plan gratuito** con el proveedor por defecto (`entitlement_required`, `auth.email_templates`). Hasta configurar SMTP propio (Resend), los enlaces seguirán usando el flujo con `code` y el punto 2 es lo que sostiene la experiencia. El soporte de `token_hash` ya está en el cliente y empezará a usarse en cuanto las plantillas se puedan editar.

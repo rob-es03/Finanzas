@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { IonContent } from '@ionic/angular';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -22,6 +22,12 @@ export class LoginPage {
   readonly isSubmitting = signal<boolean>(false);
   readonly errorMessage = signal<string | null>(null);
   readonly showPassword = signal<boolean>(false);
+
+  /**
+   * Se llega aquí con `?confirmado=1` cuando el enlace del correo se abrió en
+   * otro navegador: la cuenta quedó confirmada, solo falta iniciar sesión.
+   */
+  readonly justConfirmed = inject(ActivatedRoute).snapshot.queryParamMap.get('confirmado') === '1';
 
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
