@@ -1,0 +1,314 @@
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(20, 27, 25, 0.6);
+  z-index: 1000;
+}
+
+.record-dialog {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 520px;
+  margin: 0 auto;
+  background-color: var(--app-surface-color);
+  border-top-left-radius: var(--app-radius-lg);
+  border-top-right-radius: var(--app-radius-lg);
+  box-shadow: var(--app-shadow-overlay);
+  z-index: 1001;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+
+  @media (min-width: 600px) {
+    top: 50%;
+    bottom: auto;
+    transform: translateY(-50%);
+    border-radius: var(--app-radius-lg);
+    max-height: 85vh;
+  }
+}
+
+.dialog-header {
+  padding: var(--app-space-2) var(--app-space-4) var(--app-space-3);
+  border-bottom: 1px solid var(--app-border-color);
+
+  .drag-handle-bar {
+    width: 36px;
+    height: 4px;
+    background-color: var(--app-border-color);
+    border-radius: 9999px;
+    margin: 4px auto 8px;
+
+    @media (min-width: 600px) {
+      display: none;
+    }
+  }
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .dialog-title {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--app-text-primary);
+    }
+
+    .btn-close {
+      background: transparent;
+      border: none;
+      color: var(--app-text-secondary);
+      padding: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+}
+
+.dialog-body {
+  padding: var(--app-space-4);
+  overflow-y: auto;
+}
+
+.type-toggle-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  background-color: var(--app-bg-color);
+  padding: 4px;
+  border-radius: var(--app-radius-md);
+  margin-bottom: var(--app-space-3);
+
+  .toggle-btn {
+    min-height: 42px;
+    background: transparent;
+    border: none;
+    border-radius: var(--app-radius-sm);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--app-text-secondary);
+    cursor: pointer;
+    transition: background-color var(--app-transition-fast), color var(--app-transition-fast);
+
+    &.active-expense {
+      background-color: var(--ion-color-danger);
+      color: var(--ion-color-danger-contrast);
+    }
+
+    &.active-income {
+      background-color: var(--ion-color-success);
+      color: var(--ion-color-success-contrast);
+    }
+  }
+}
+
+.presets-section {
+  margin-bottom: var(--app-space-3);
+
+  .presets-label {
+    display: block;
+    font-size: 0.775rem;
+    font-weight: 600;
+    color: var(--app-text-secondary);
+    margin-bottom: 6px;
+  }
+
+  .presets-scroll {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .preset-chip {
+    white-space: nowrap;
+    padding: 6px 12px;
+    background-color: var(--app-bg-color);
+    border: 1px solid var(--app-border-color);
+    border-radius: var(--app-radius-full);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--app-text-primary);
+    cursor: pointer;
+    transition: background-color var(--app-transition-fast);
+
+    &:hover {
+      background-color: rgba(13, 96, 88, 0.08);
+      border-color: var(--ion-color-primary);
+    }
+
+    &:active {
+      transform: scale(0.97);
+    }
+  }
+}
+
+.form-error-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: rgba(156, 52, 59, 0.1);
+  border: 1px solid var(--ion-color-danger);
+  border-radius: var(--app-radius-sm);
+  padding: 8px 12px;
+  font-size: 0.825rem;
+  color: var(--ion-color-danger);
+  margin-bottom: var(--app-space-3);
+
+  svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+}
+
+.record-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-3);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  label {
+    font-size: 0.825rem;
+    font-weight: 600;
+    color: var(--app-text-primary);
+  }
+}
+
+.form-row {
+  display: flex;
+  gap: var(--app-space-3);
+
+  .flex-1 {
+    flex: 1;
+  }
+}
+
+.amount-input-box {
+  display: flex;
+  align-items: center;
+  background-color: var(--app-bg-color);
+  border: 1px solid var(--app-control-border);
+  border-radius: var(--app-radius-sm);
+  padding: 0 12px;
+
+  .currency-prefix {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--app-text-secondary);
+    margin-right: 4px;
+  }
+
+  .amount-field {
+    flex: 1;
+    min-height: 48px;
+    border: none;
+    background: transparent;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--app-text-primary);
+    outline: none;
+  }
+}
+
+.text-field, .select-field {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 12px;
+  background-color: var(--app-bg-color);
+  border: 1px solid var(--app-control-border);
+  border-radius: var(--app-radius-sm);
+  font-size: 0.95rem;
+  color: var(--app-text-primary);
+  outline: none;
+
+  &:focus {
+    border-color: var(--ion-color-primary);
+  }
+}
+
+.discard-confirm-box {
+  background-color: rgba(119, 82, 22, 0.08);
+  border: 1px solid var(--ion-color-warning);
+  border-radius: var(--app-radius-sm);
+  padding: 10px 14px;
+  margin-top: 6px;
+
+  p {
+    margin: 0 0 8px;
+    font-size: 0.85rem;
+    color: var(--app-text-primary);
+  }
+
+  .confirm-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .btn-cancel {
+    min-height: 36px;
+    padding: 0 12px;
+    background: transparent;
+    border: 1px solid var(--app-border-color);
+    border-radius: var(--app-radius-sm);
+    color: var(--app-text-primary);
+    cursor: pointer;
+  }
+
+  .btn-discard {
+    min-height: 36px;
+    padding: 0 12px;
+    background: var(--ion-color-danger);
+    color: #ffffff;
+    border: none;
+    border-radius: var(--app-radius-sm);
+    font-weight: 600;
+    cursor: pointer;
+  }
+}
+
+.form-actions {
+  margin-top: var(--app-space-3);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+
+  .btn-save {
+    width: 100%;
+    min-height: 50px;
+  }
+}
+
+.spinner-sm {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { Router, UrlTree } from '@angular/router';
+import { Router } from '@angular/router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { authGuard, onboardingGuard, publicOnlyGuard } from './auth.guard';
 import { AuthService } from './auth.service';

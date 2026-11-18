@@ -1,0 +1,212 @@
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(20, 27, 25, 0.6);
+  z-index: 1000;
+}
+
+.modal-dialog {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 480px;
+  margin: 0 auto;
+  background-color: var(--app-surface-color);
+  border-top-left-radius: var(--app-radius-lg);
+  border-top-right-radius: var(--app-radius-lg);
+  box-shadow: var(--app-shadow-overlay);
+  z-index: 1001;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+
+  @media (min-width: 600px) {
+    top: 50%;
+    bottom: auto;
+    transform: translateY(-50%);
+    border-radius: var(--app-radius-lg);
+  }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--app-space-4);
+  border-bottom: 1px solid var(--app-border-color);
+
+  .modal-title {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--app-text-primary);
+  }
+
+  .btn-close {
+    background: transparent;
+    border: none;
+    color: var(--app-text-secondary);
+    padding: 8px;
+    cursor: pointer;
+    border-radius: var(--app-radius-sm);
+    display: flex;
+    align-items: center;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+.modal-body {
+  padding: var(--app-space-4);
+  overflow-y: auto;
+}
+
+.amount-hero {
+  text-align: center;
+  padding: var(--app-space-4) 0;
+  background-color: var(--app-bg-color);
+  border-radius: var(--app-radius-md);
+  margin-bottom: var(--app-space-4);
+
+  .hero-type-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }
+
+  .hero-amount {
+    font-size: 2rem;
+    font-weight: 800;
+  }
+
+  &.income {
+    color: var(--ion-color-success);
+    border: 1px solid rgba(23, 99, 69, 0.2);
+  }
+
+  &.expense {
+    color: var(--ion-color-danger);
+    border: 1px solid rgba(156, 52, 59, 0.2);
+  }
+}
+
+.detail-list {
+  margin: 0;
+  padding: 0;
+
+  .detail-item {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--app-space-3) 0;
+    border-bottom: 1px solid var(--app-border-color);
+
+    dt {
+      color: var(--app-text-secondary);
+      font-size: 0.875rem;
+    }
+
+    dd {
+      margin: 0;
+      color: var(--app-text-primary);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+  }
+}
+
+.delete-confirm-box {
+  background-color: rgba(156, 52, 59, 0.08);
+  border: 1px solid var(--ion-color-danger);
+  border-radius: var(--app-radius-md);
+  padding: var(--app-space-3);
+  margin-top: var(--app-space-4);
+
+  .confirm-message {
+    margin: 0 0 var(--app-space-3);
+    font-size: 0.875rem;
+    color: var(--app-text-primary);
+  }
+
+  .confirm-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .btn-cancel-delete {
+    min-height: 40px;
+    padding: 0 14px;
+    background: transparent;
+    border: 1px solid var(--app-border-color);
+    border-radius: var(--app-radius-sm);
+    color: var(--app-text-primary);
+    cursor: pointer;
+  }
+
+  .btn-confirm-delete {
+    min-height: 40px;
+    padding: 0 14px;
+    background: var(--ion-color-danger);
+    color: #ffffff;
+    border: none;
+    border-radius: var(--app-radius-sm);
+    font-weight: 600;
+    cursor: pointer;
+  }
+}
+
+.modal-footer {
+  display: flex;
+  gap: 12px;
+  padding: var(--app-space-3) var(--app-space-4);
+  border-top: 1px solid var(--app-border-color);
+
+  .btn-edit {
+    flex: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 48px;
+    background: var(--ion-color-primary);
+    color: var(--ion-color-primary-contrast);
+    border: none;
+    border-radius: var(--app-radius-md);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .btn-delete {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 48px;
+    background: transparent;
+    color: var(--ion-color-danger);
+    border: 1px solid var(--ion-color-danger);
+    border-radius: var(--app-radius-md);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+}

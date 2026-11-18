@@ -2,9 +2,26 @@ import { Routes } from '@angular/router';
 import { authGuard, onboardingGuard, publicOnlyGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+  { path: '', pathMatch: 'full', redirectTo: 'home' },
 
-  // Flujo de Autenticación y Onboarding
+  // Área privada «Saldo claro». Lleva authGuard: son las pantallas con datos
+  // financieros del usuario y no deben abrirse sin sesión.
+  {
+    path: 'home',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/home/home.page').then((m) => m.HomePage),
+  },
+  {
+    path: 'movements',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/movements/movements.page').then((m) => m.MovementsPage),
+  },
+  // `dashboard` fue la primera pantalla privada y sigue apareciendo en enlaces
+  // antiguos; se conserva como redirección para no romperlos.
+  { path: 'dashboard', pathMatch: 'full', redirectTo: 'home' },
+
+  // Flujo de autenticación y onboarding
   {
     path: 'auth/welcome',
     canActivate: [publicOnlyGuard],
@@ -14,8 +31,7 @@ export const routes: Routes = [
   {
     path: 'auth/login',
     canActivate: [publicOnlyGuard],
-    loadComponent: () =>
-      import('./features/auth/login/login.page').then((m) => m.LoginPage),
+    loadComponent: () => import('./features/auth/login/login.page').then((m) => m.LoginPage),
   },
   {
     path: 'auth/register',
@@ -33,7 +49,7 @@ export const routes: Routes = [
   },
   {
     // Sin guard a propósito: el enlace de recuperación deja una sesión activa,
-    // así que publicOnlyGuard echaría de aquí justo a quien viene a cambiarla.
+    // así que publicOnlyGuard echaría justo a quien viene a cambiar la contraseña.
     path: 'auth/reset-password',
     loadComponent: () =>
       import('./features/auth/reset-password/reset-password.page').then(
@@ -57,13 +73,5 @@ export const routes: Routes = [
       import('./features/auth/onboarding/onboarding.page').then((m) => m.OnboardingPage),
   },
 
-  // Área Protegida
-  {
-    path: 'dashboard',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/dashboard/dashboard.page').then((m) => m.DashboardPage),
-  },
-
-  { path: '**', redirectTo: 'dashboard' },
+  { path: '**', redirectTo: 'home' },
 ];

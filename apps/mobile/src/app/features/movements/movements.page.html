@@ -1,0 +1,168 @@
+<ion-header class="ion-no-border movements-header">
+  <ion-toolbar class="movements-toolbar">
+    <div class="header-inner">
+      <div class="header-left">
+        <button type="button" class="btn-back" (click)="goBack()" aria-label="Volver a Inicio">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
+        </button>
+        <div class="title-box">
+          <h1 class="page-title">Movimientos</h1>
+          <span class="mock-badge">Datos ficticios</span>
+        </div>
+      </div>
+
+      <!-- Acción para registrar movimiento desde Movimientos -->
+      <button
+        type="button"
+        class="btn-saldo-primary btn-record-header"
+        (click)="openRecordModal()"
+        aria-label="Registrar nuevo movimiento"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+        <span>Nuevo</span>
+      </button>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="movements-content">
+  <div class="content-container">
+    <!-- PANEL DE CONTROLES Y FILTROS (Criterio MO-01) -->
+    <section class="saldo-card filter-panel" aria-label="Filtros de movimientos">
+      <!-- Fila 1: Búsqueda textual -->
+      <div class="search-row">
+        <div class="search-input-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-icon"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
+          <input
+            type="search"
+            placeholder="Buscar por descripción o categoría..."
+            [value]="stateService.filterSearch()"
+            (input)="onSearchChange($event)"
+            class="search-input"
+            aria-label="Buscar movimientos"
+          />
+        </div>
+      </div>
+
+      <!-- Fila 2: Selector de Mes y Botón Mes Actual -->
+      <div class="month-row">
+        <div class="month-picker-box">
+          <label for="monthFilter" class="month-label">Período:</label>
+          <input
+            id="monthFilter"
+            type="month"
+            [value]="stateService.filterMonth()"
+            (change)="onMonthChange($event)"
+            class="month-input"
+          />
+        </div>
+
+        <button type="button" class="btn-current-month" (click)="setCurrentMonth()">
+          Mes actual
+        </button>
+      </div>
+
+      <!-- Fila 3: Filtro por Tipo (Todos, Ingresos, Gastos) -->
+      <div class="type-segment" role="tablist" aria-label="Filtrar por tipo de movimiento">
+        <button
+          type="button"
+          role="tab"
+          [attr.aria-selected]="stateService.filterType() === 'all'"
+          class="segment-btn"
+          [class.active]="stateService.filterType() === 'all'"
+          (click)="setTypeFilter('all')"
+        >
+          Todos
+        </button>
+        <button
+          type="button"
+          role="tab"
+          [attr.aria-selected]="stateService.filterType() === 'income'"
+          class="segment-btn"
+          [class.active]="stateService.filterType() === 'income'"
+          (click)="setTypeFilter('income')"
+        >
+          Solo Ingresos
+        </button>
+        <button
+          type="button"
+          role="tab"
+          [attr.aria-selected]="stateService.filterType() === 'expense'"
+          class="segment-btn"
+          [class.active]="stateService.filterType() === 'expense'"
+          (click)="setTypeFilter('expense')"
+        >
+          Solo Gastos
+        </button>
+      </div>
+    </section>
+
+    <!-- LISTA DE MOVIMIENTOS Y ESTADOS (Criterio MO-01, MO-02) -->
+    <section class="saldo-card list-section" aria-label="Listado de movimientos">
+      <!-- Caso 1: Búsqueda con filtros sin coincidencias -->
+      @if (stateService.filteredMovements().length === 0 && (stateService.filterSearch() || stateService.filterType() !== 'all')) {
+        <div class="no-matches-state" role="status">
+          <div class="empty-icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
+          </div>
+          <h3>No encontramos movimientos con estos filtros</h3>
+          <p>Prueba buscando con otro término o limpia los filtros activos.</p>
+          <button type="button" class="btn-saldo-secondary" (click)="clearAllFilters()">
+            Limpiar filtros
+          </button>
+        </div>
+      }
+
+      <!-- Caso 2: Lista vacía absoluta (sin movimientos registrados) -->
+      @else if (stateService.filteredMovements().length === 0) {
+        <div class="empty-history-state" role="status">
+          <div class="empty-icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+          </div>
+          <h3>Aún no tienes movimientos</h3>
+          <p>Registra tu primer ingreso o gasto para comenzar a ver tu historial.</p>
+          <button type="button" class="btn-saldo-primary" (click)="openRecordModal()">
+            Registrar movimiento
+          </button>
+        </div>
+      }
+
+      <!-- Caso 3: Lista con movimientos -->
+      @else {
+        <div class="results-header">
+          <span class="count-badge">
+            {{ stateService.filteredMovements().length }} {{ stateService.filteredMovements().length === 1 ? 'movimiento' : 'movimientos' }}
+          </span>
+        </div>
+
+        <div class="movements-table" role="list">
+          @for (mov of stateService.filteredMovements(); track mov.id) {
+            <app-movement-row
+              [movement]="mov"
+              (selectMovement)="openDetail($event)"
+            ></app-movement-row>
+          }
+        </div>
+      }
+    </section>
+  </div>
+
+  <!-- Modal de Registro / Edición -->
+  @if (showRecordModal) {
+    <app-quick-record-modal
+      [editMovement]="movementToEdit"
+      (closeModal)="closeRecordModal()"
+      (saved)="onMovementSaved()"
+    ></app-quick-record-modal>
+  }
+
+  <!-- Modal de Detalle de Movimiento -->
+  @if (selectedMovementForDetail) {
+    <app-movement-detail-modal
+      [movement]="selectedMovementForDetail"
+      (closeModal)="closeDetail()"
+      (edit)="editFromDetail($event)"
+      (delete)="deleteFromDetail($event)"
+    ></app-movement-detail-modal>
+  }
+</ion-content>

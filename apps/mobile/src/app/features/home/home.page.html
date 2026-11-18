@@ -1,0 +1,392 @@
+<ion-content [fullscreen]="true" class="revolut-home-container">
+  <div class="rev-screen-wrapper">
+    <!-- 1. Header estilo Revolut: Avatar + Notificaciones + Segment Pills -->
+    <header class="revolut-header">
+      <div class="header-top-bar">
+        <!-- Avatar de Usuario con punto de estado activo -->
+        <button type="button" class="btn-avatar" (click)="goToProfile()" aria-label="Perfil de usuario y configuración">
+          <span class="avatar-circle">RP</span>
+          <span class="status-indicator" aria-hidden="true"></span>
+        </button>
+
+        <!-- Indicador central discreto de datos de demostración -->
+        <span class="mock-tag" aria-label="Indicador: datos ficticios de demostración">
+          Demo
+        </span>
+
+        <!-- Acciones superiores derechas: Tendencias + Campana -->
+        <div class="header-right-actions">
+          <button type="button" class="btn-icon-ghost" (click)="goToMovements()" aria-label="Ver tendencias y gráficos">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941" />
+            </svg>
+          </button>
+          <button type="button" class="btn-icon-ghost" aria-label="Notificaciones del sistema">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Segment Tabs estilo Revolut: Cuentas, Analítica, Tarjetas, Metas -->
+      <nav class="segment-tabs-nav" role="tablist" aria-label="Secciones principales">
+        <button
+          type="button"
+          role="tab"
+          class="segment-pill"
+          [class.active]="activeTab === 'accounts'"
+          (click)="activeTab = 'accounts'"
+        >
+          Cuentas
+        </button>
+        <button
+          type="button"
+          role="tab"
+          class="segment-pill"
+          [class.active]="activeTab === 'analytics'"
+          (click)="activeTab = 'analytics'"
+        >
+          Analítica
+        </button>
+        <button
+          type="button"
+          role="tab"
+          class="segment-pill"
+          [class.active]="activeTab === 'cards'"
+          (click)="activeTab = 'cards'"
+        >
+          Tarjetas
+        </button>
+        <button
+          type="button"
+          role="tab"
+          class="segment-pill"
+          [class.active]="activeTab === 'vaults'"
+          (click)="activeTab = 'vaults'"
+        >
+          Metas
+        </button>
+      </nav>
+    </header>
+
+    <!-- Error Parcial con opción de reintento -->
+    @if (stateService.hasPartialError()) {
+      <div class="rev-error-banner" role="alert">
+        <span>No se pudieron actualizar algunos saldos en vivo.</span>
+        <button type="button" class="btn-retry" (click)="retryLoad()">Reintentar</button>
+      </div>
+    }
+
+    <!-- 2. Tarjeta Hero Principal: Saldo + Selector + Sparkline + Botones de Acción + Transacciones -->
+    <section class="rev-card hero-balance-card" aria-labelledby="balance-label-id">
+      <!-- Fila superior: Selector de cuenta y Bandera de moneda -->
+      <div class="hero-header-row">
+        <div class="account-select-pill">
+          <label for="accountSelect" class="sr-only">Seleccionar cuenta</label>
+          <select
+            id="accountSelect"
+            [value]="stateService.selectedAccountId()"
+            (change)="onAccountChange($event)"
+            class="revolut-select"
+            aria-label="Seleccionar cuenta bancaria o billetera"
+          >
+            @for (acc of stateService.accounts(); track acc.id) {
+              <option [value]="acc.id">{{ acc.name }}</option>
+            }
+          </select>
+          <svg class="select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+          </svg>
+        </div>
+
+        <div class="currency-flag-circle" title="Dólares (USD)">
+          <span class="flag-symbol">🇪🇨</span>
+        </div>
+      </div>
+
+      <!-- Saldo Gigante con Cifras Tabulares y Código de Moneda -->
+      <div class="hero-balance-content">
+        @if (stateService.isLoading()) {
+          <div class="skeleton-balance" aria-hidden="true"></div>
+        } @else {
+          <div class="balance-display-wrap">
+            <h1
+              id="balance-label-id"
+              class="balance-amount tabular-nums"
+              [class.negative]="stateService.currentBalanceCents() < 0"
+            >
+              {{ stateService.currentBalanceCents() | money }}
+            </h1>
+          </div>
+        }
+        <span class="balance-currency-meta">USD · Dólares estadounidenses</span>
+      </div>
+
+      <!-- Onda Sparkline sutil estilo Revolut -->
+      <div class="sparkline-wrapper" aria-hidden="true">
+        <svg class="sparkline-svg" viewBox="0 0 320 54" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="rev-spark-gradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--ion-color-primary)" stop-opacity="0.32" />
+              <stop offset="100%" stop-color="var(--ion-color-primary)" stop-opacity="0.0" />
+            </linearGradient>
+          </defs>
+          <path class="sparkline-area" d="M 0,40 C 35,36 55,18 95,24 C 135,30 160,8 200,14 C 240,20 270,32 320,12 L 320,54 L 0,54 Z" fill="url(#rev-spark-gradient)" />
+          <path class="sparkline-line" d="M 0,40 C 35,36 55,18 95,24 C 135,30 160,8 200,14 C 240,20 270,32 320,12" fill="none" stroke="var(--ion-color-primary)" stroke-width="2.5" stroke-linecap="round" />
+          <circle class="sparkline-dot" cx="320" cy="12" r="3.5" fill="var(--ion-color-primary)" />
+        </svg>
+      </div>
+
+      <!-- Fila de Acciones Rápidas (Pastillas con fondo teñido estilo Revolut) -->
+      <div class="hero-action-buttons">
+        <button
+          type="button"
+          class="rev-pill-btn primary"
+          (click)="openRecordModal()"
+          aria-label="Registrar nuevo movimiento"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          <span>Registrar</span>
+        </button>
+
+        <button
+          type="button"
+          class="rev-pill-btn secondary"
+          (click)="goToMovements()"
+          aria-label="Ver lista completa de movimientos"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+          </svg>
+          <span>Movimientos</span>
+        </button>
+
+        <button
+          type="button"
+          class="rev-pill-btn icon-only"
+          (click)="openRecordModal()"
+          aria-label="Más atajos y opciones financieras"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Sección de Transacciones embebida en la tarjeta principal -->
+      <div class="card-transactions-embed">
+        <div class="transactions-header-row">
+          <span class="tx-section-heading">Transacciones</span>
+          <button type="button" class="btn-see-all" (click)="goToMovements()">
+            Ver todas
+          </button>
+        </div>
+
+        @if (stateService.movements().length === 0) {
+          <div class="empty-transactions-box">
+            <p>Sin transacciones registradas.</p>
+            <button type="button" class="btn-text-link" (click)="openRecordModal()">+ Registrar primera</button>
+          </div>
+        } @else {
+          <div class="transactions-list-wrap">
+            @for (mov of stateService.movements().slice(0, 3); track mov.id) {
+              <div
+                class="rev-tx-row"
+                role="button"
+                tabindex="0"
+                (click)="openDetail(mov)"
+                (keydown.enter)="openDetail(mov)"
+                [attr.aria-label]="mov.description + ', ' + (mov.type === 'income' ? '+' : '-') + (mov.amountCents | money)"
+              >
+                <!-- Avatar circular con icono o inicial semántica -->
+                <div class="tx-avatar-circle" [class.income]="mov.type === 'income'" [class.expense]="mov.type === 'expense'">
+                  @if (mov.type === 'income') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                  } @else {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" />
+                    </svg>
+                  }
+                </div>
+
+                <!-- Descripción y categoría -->
+                <div class="tx-info-col">
+                  <span class="tx-desc-title">{{ mov.description }}</span>
+                  <span class="tx-meta-subtitle">{{ mov.date }} · {{ mov.categoryName }}</span>
+                </div>
+
+                <!-- Monto en cifras tabulares -->
+                <div class="tx-amount-col">
+                  <span
+                    class="tx-amount-val tabular-nums"
+                    [class.text-income]="mov.type === 'income'"
+                    [class.text-expense]="mov.type === 'expense'"
+                  >
+                    {{ mov.type === 'income' ? '+' : '-' }}{{ mov.amountCents | money }}
+                  </span>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- 3. Sección de Analítica y Métricas (2 Tarjetas lado a lado estilo Revolut Screenshot 4) -->
+    <section class="analytics-section" aria-label="Resumen analítico mensual">
+      <div class="section-title-bar">
+        <h2 class="section-heading-text">Analítica</h2>
+        <span class="period-pill-text">Noviembre 2026</span>
+      </div>
+
+      <div class="analytics-two-col-grid">
+        <!-- Widget 1: Gastado este mes con micro-gráfico de barras semanales -->
+        <div class="rev-card metric-widget-card">
+          <div class="widget-header">
+            <span class="widget-label">Gastado este mes</span>
+            <span class="widget-badge danger">▲ 6.2%</span>
+          </div>
+
+          <div class="widget-amount-row">
+            <span class="widget-amount-value tabular-nums text-expense">
+              {{ stateService.monthSummary().expenseCents | money }}
+            </span>
+          </div>
+
+          <!-- Micro gráfico de barras diarias estilo Revolut -->
+          <div class="mini-bar-chart" aria-hidden="true" title="Distribución de gastos de la semana">
+            <div class="bar-col"><div class="bar-fill" style="height: 35%"></div><span class="bar-label">L</span></div>
+            <div class="bar-col"><div class="bar-fill" style="height: 60%"></div><span class="bar-label">M</span></div>
+            <div class="bar-col"><div class="bar-fill" style="height: 40%"></div><span class="bar-label">X</span></div>
+            <div class="bar-col"><div class="bar-fill" style="height: 85%"></div><span class="bar-label">J</span></div>
+            <div class="bar-col"><div class="bar-fill" style="height: 50%"></div><span class="bar-label">V</span></div>
+            <div class="bar-col active"><div class="bar-fill active" style="height: 95%"></div><span class="bar-label">S</span></div>
+            <div class="bar-col"><div class="bar-fill" style="height: 30%"></div><span class="bar-label">D</span></div>
+          </div>
+        </div>
+
+        <!-- Widget 2: Flujo neto del mes con barra de progreso -->
+        <div class="rev-card metric-widget-card">
+          <div class="widget-header">
+            <span class="widget-label">Flujo neto</span>
+            <span
+              class="widget-badge"
+              [class.success]="stateService.monthSummary().netFlowCents >= 0"
+              [class.danger]="stateService.monthSummary().netFlowCents < 0"
+            >
+              {{ stateService.monthSummary().netFlowCents >= 0 ? 'Superávit' : 'Déficit' }}
+            </span>
+          </div>
+
+          <div class="widget-amount-row">
+            <span
+              class="widget-amount-value tabular-nums"
+              [class.text-income]="stateService.monthSummary().netFlowCents >= 0"
+              [class.text-expense]="stateService.monthSummary().netFlowCents < 0"
+            >
+              {{ stateService.monthSummary().netFlowCents | money:{ forceSign: true } }}
+            </span>
+          </div>
+
+          <!-- Barra de progreso comparativa Ingresos vs Gastos -->
+          <div class="progress-container">
+            <div class="progress-track-bar" aria-hidden="true">
+              <div class="progress-fill-bar" style="width: 65%"></div>
+            </div>
+            <div class="progress-footer-meta">
+              <span>Ingresos: {{ stateService.monthSummary().incomeCents | money }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Pagos Próximos (Tarjetas compactas con vencimiento en 7 días) -->
+    <section class="rev-card upcoming-bills-card" aria-label="Próximos vencimientos de pagos">
+      <div class="upcoming-header-row">
+        <div class="upcoming-title-wrap">
+          <span class="tx-section-heading">Pagos próximos</span>
+          <span class="upcoming-badge">Próximos 7 días</span>
+        </div>
+      </div>
+
+      <div class="upcoming-list-items">
+        @for (pay of stateService.upcomingPayments(); track pay.id) {
+          <div class="upcoming-row-item">
+            <div class="upcoming-icon-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+              </svg>
+            </div>
+            <div class="upcoming-details">
+              <span class="upcoming-desc">{{ pay.description }}</span>
+              <span class="upcoming-sub">{{ pay.accountName }} • Vence: {{ pay.dueDate }}</span>
+            </div>
+            <div class="upcoming-amount-box">
+              <span class="upcoming-val tabular-nums">{{ pay.amountCents | money }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  </div>
+
+  <!-- 5. Barra de Navegación Flotante Inferior estilo Revolut Dock -->
+  <nav class="rev-floating-dock" aria-label="Navegación principal">
+    <button type="button" class="dock-action-btn active" aria-label="Inicio" title="Inicio">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+        <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+      </svg>
+      <span class="dock-active-dot" aria-hidden="true"></span>
+    </button>
+
+    <button type="button" class="dock-action-btn" (click)="goToMovements()" aria-label="Historial de movimientos" title="Movimientos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+      </svg>
+    </button>
+
+    <!-- Botón CTA Central Elevado -->
+    <button
+      type="button"
+      class="dock-action-btn dock-cta-circle"
+      (click)="openRecordModal()"
+      aria-label="Registrar movimiento rápido"
+      title="Registrar"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+      </svg>
+    </button>
+
+    <button type="button" class="dock-action-btn" (click)="goToProfile()" aria-label="Configuración y perfil" title="Perfil">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
+      </svg>
+    </button>
+  </nav>
+
+  <!-- Modal de Registro / Edición -->
+  @if (showRecordModal) {
+    <app-quick-record-modal
+      [editMovement]="movementToEdit"
+      (closeModal)="closeRecordModal()"
+      (saved)="onMovementSaved()"
+    ></app-quick-record-modal>
+  }
+
+  <!-- Modal de Detalle de Movimiento -->
+  @if (selectedMovementForDetail) {
+    <app-movement-detail-modal
+      [movement]="selectedMovementForDetail"
+      (closeModal)="closeDetail()"
+      (edit)="editFromDetail($event)"
+      (delete)="deleteFromDetail($event)"
+    ></app-movement-detail-modal>
+  }
+</ion-content>

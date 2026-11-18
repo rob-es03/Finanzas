@@ -1,0 +1,45 @@
+<div
+  class="movement-row"
+  [class.income]="movement.type === 'income'"
+  [class.expense]="movement.type === 'expense'"
+  role="button"
+  tabindex="0"
+  (click)="onRowClick()"
+  (keydown)="onKeyDown($event)"
+  [attr.aria-label]="movement.description + ', ' + movement.categoryName + ', cuenta ' + movement.accountName + ', ' + (movement.type === 'income' ? 'ingreso de ' : 'gasto de ') + (movement.amountCents | money)"
+>
+  <!-- Icono semántico de tipo -->
+  <div class="type-icon-wrapper" [attr.aria-hidden]="true">
+    @if (movement.type === 'income') {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="icon-income">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+      </svg>
+    } @else {
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="icon-expense">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" />
+      </svg>
+    }
+  </div>
+
+  <!-- Detalles del movimiento (descripción, categoría, cuenta) -->
+  <div class="row-details">
+    <span class="row-description">{{ movement.description }}</span>
+    <div class="row-metadata">
+      <span class="meta-category">{{ movement.categoryName }}</span>
+      <span class="meta-separator">•</span>
+      <span class="meta-account">{{ movement.accountName }}</span>
+    </div>
+  </div>
+
+  <!-- Monto alineado a la derecha con cifras tabulares y signo -->
+  <div class="row-amount-box">
+    <span
+      class="amount-value tabular-nums"
+      [class.text-income]="movement.type === 'income'"
+      [class.text-expense]="movement.type === 'expense'"
+    >
+      {{ movement.type === 'income' ? '+' : '-' }}{{ movement.amountCents | money }}
+    </span>
+    <span class="row-date">{{ movement.date }}</span>
+  </div>
+</div>
