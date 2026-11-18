@@ -151,3 +151,20 @@ Los guards esperaban la sesión con un `setTimeout(100)` o no la esperaban en ab
 Decisión **D-018**: la base compartida es el proyecto en la nube `ujalaluhmtwevqhnzivo`. Razones y camino para habilitar desarrollo local en `docs/ops/BASE-DE-DATOS.md`; regla en `AGENTS.md`, sección 14. Añadido `npm --prefix apps/mobile run check:env`, que falla si el worktree apunta a otra base.
 
 **Pendiente**: el worktree `FINANZAS` (Antigravity) sigue apuntando a `http://127.0.0.1:54321`. No lo reescribí porque es la copia de trabajo de otro agente en uso.
+
+### Acceso con correo y contraseña · 2026-11-17
+Implementado sobre lo que Codex especificó en `docs/auth/ACCESO-CORREO-RESEND.md` (rama `codex/docs-auth-correo-resend`).
+
+**Pantallas**: `auth/login` rediseñada (correo y contraseña, mostrar/ocultar, separador, Google, enlaces a registro y recuperación), y tres nuevas: `auth/register`, `auth/forgot-password`, `auth/reset-password`.
+
+**Servicio** (`core/auth/auth.service.ts`): `signUpWithEmail`, `signInWithEmail`, `sendPasswordReset`, `updatePassword`, `exchangeRecoveryCode` y un traductor de errores al español.
+
+**Decisiones de seguridad**
+- La recuperación responde **siempre igual**, exista o no la cuenta, y un fallo de envío no se muestra: lo contrario permitiría averiguar qué direcciones están registradas.
+- «Correo ya registrado» comparte redacción con el caso de alta normal, por el mismo motivo.
+- `auth/reset-password` **no lleva guard**: el enlace deja sesión activa y `publicOnlyGuard` echaría justo a quien viene a cambiar la contraseña. Si no hay código válido ni sesión, la pantalla dice que el enlace caducó.
+- Mínimo de 8 caracteres en el cliente. **El servidor sigue en 6**: conviene subirlo en Supabase Auth.
+
+**Verificado en navegador**: las cuatro pantallas renderizan; credenciales incorrectas devuelven «Correo o contraseña incorrectos.» desde Supabase real; `reset-password` sin enlace válido muestra el aviso de caducado. Build ✅, `tsc` ✅, pruebas **13/13** ✅, lint **21 errores** (los de T-032, ninguno nuevo).
+
+**Lo que NO está probado**: la entrega de correos. El proyecto usa el **SMTP por defecto de Supabase**, limitado a **2 correos por hora** y que solo entrega a miembros del proyecto. Sin configurar Resend, el alta por correo de cualquier otra persona no recibirá la confirmación. Ver `docs/auth/ACCESO-CORREO-RESEND.md`.

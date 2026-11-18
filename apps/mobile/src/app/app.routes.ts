@@ -18,6 +18,29 @@ export const routes: Routes = [
       import('./features/auth/login/login.page').then((m) => m.LoginPage),
   },
   {
+    path: 'auth/register',
+    canActivate: [publicOnlyGuard],
+    loadComponent: () =>
+      import('./features/auth/register/register.page').then((m) => m.RegisterPage),
+  },
+  {
+    path: 'auth/forgot-password',
+    canActivate: [publicOnlyGuard],
+    loadComponent: () =>
+      import('./features/auth/forgot-password/forgot-password.page').then(
+        (m) => m.ForgotPasswordPage,
+      ),
+  },
+  {
+    // Sin guard a propósito: el enlace de recuperación deja una sesión activa,
+    // así que publicOnlyGuard echaría de aquí justo a quien viene a cambiarla.
+    path: 'auth/reset-password',
+    loadComponent: () =>
+      import('./features/auth/reset-password/reset-password.page').then(
+        (m) => m.ResetPasswordPage,
+      ),
+  },
+  {
     path: 'auth/callback',
     loadComponent: () =>
       import('./features/auth/callback/callback.page').then((m) => m.AuthCallbackPage),

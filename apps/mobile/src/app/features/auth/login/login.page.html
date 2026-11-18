@@ -16,7 +16,7 @@
 
       <h1 class="login-title">Iniciar sesión</h1>
       <p class="login-subtitle">
-        Accede a tu panel financiero personal. Sin contraseñas que recordar, mediante tu cuenta de Google.
+        Entra con tu correo o con tu cuenta de Google para acceder a tu panel financiero.
       </p>
     </header>
 
@@ -28,17 +28,86 @@
       </div>
     }
 
-    <!-- Tarjeta de Autenticación con Google -->
     <main class="auth-card">
+      <!-- Acceso con correo y contraseña -->
+      <form class="auth-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="field">
+          <label class="field-label" for="login-email">Correo electrónico</label>
+          <input
+            id="login-email"
+            class="field-input"
+            type="email"
+            formControlName="email"
+            autocomplete="email"
+            inputmode="email"
+            placeholder="tucorreo@ejemplo.com"
+            [attr.aria-invalid]="email.touched && email.invalid ? 'true' : null"
+            [attr.aria-describedby]="email.touched && email.invalid ? 'login-email-error' : null"
+          />
+          @if (email.touched && email.invalid) {
+            <p class="field-error" id="login-email-error">
+              {{ email.hasError('required') ? 'Escribe tu correo.' : 'Revisa el formato del correo.' }}
+            </p>
+          }
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="login-password">Contraseña</label>
+          <div class="field-input-wrap">
+            <input
+              id="login-password"
+              class="field-input field-input--with-action"
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="password"
+              autocomplete="current-password"
+              placeholder="Tu contraseña"
+              [attr.aria-invalid]="password.touched && password.invalid ? 'true' : null"
+              [attr.aria-describedby]="password.touched && password.invalid ? 'login-password-error' : null"
+            />
+            <button
+              type="button"
+              class="field-action"
+              (click)="togglePassword()"
+              [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+              [attr.aria-pressed]="showPassword()"
+            >
+              @if (showPassword()) {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243" /></svg>
+              } @else {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
+              }
+            </button>
+          </div>
+          @if (password.touched && password.invalid) {
+            <p class="field-error" id="login-password-error">Escribe tu contraseña.</p>
+          }
+        </div>
+
+        <button type="submit" class="primary-btn" [disabled]="isSubmitting() || isSigningIn()">
+          @if (isSubmitting()) {
+            <span class="app-spinner" aria-hidden="true"></span>
+            <span>Entrando...</span>
+          } @else {
+            <span>Iniciar sesión</span>
+          }
+        </button>
+
+        <p class="form-footer-link">
+          <a class="text-link" routerLink="/auth/forgot-password">¿Olvidaste tu contraseña?</a>
+        </p>
+      </form>
+
+      <div class="divider"><span>o</span></div>
+
       <div class="google-action-box">
         <!-- Botón oficial «Continuar con Google» -->
         <button
           type="button"
           class="google-sign-in-btn"
-          [disabled]="isSigningIn() || authService.isLoading()"
+          [disabled]="isSigningIn() || isSubmitting()"
           (click)="handleGoogleLogin()"
         >
-          @if (isSigningIn() || authService.isLoading()) {
+          @if (isSigningIn()) {
             <span class="app-spinner" aria-hidden="true"></span>
             <span>Conectando con Google...</span>
           } @else {
@@ -53,18 +122,10 @@
         </button>
       </div>
 
-      <!-- Explicación de permisos mínimos solicitados -->
-      <div class="permission-notice">
-        <div class="notice-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" /></svg>
-        </div>
-        <div class="notice-body">
-          <p class="notice-title">Solo solicitamos tus datos esenciales</p>
-          <p class="notice-desc">
-            Únicamente leemos tu nombre y correo electrónico autorizados para identificar tu cuenta. Nunca solicitamos acceso a tu Google Drive, contactos ni calendario.
-          </p>
-        </div>
-      </div>
+      <p class="form-footer-link">
+        ¿Aún no tienes cuenta?
+        <a class="text-link" routerLink="/auth/register">Crear cuenta</a>
+      </p>
     </main>
 
     <!-- Pie de página de confianza -->

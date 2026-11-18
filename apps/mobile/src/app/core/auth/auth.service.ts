@@ -213,6 +213,156 @@ export class AuthService {
   }
 
   /**
+   * Alta con correo y contraseña.
+   * Devuelve `true` si queda pendiente confirmar el correo (no hay sesión aún).
+   */
+  async signUpWithEmail(email: string, password: string): Promise<boolean> {
+    try {
+      this._isLoading.set(true);
+      this._authError.set(null);
+      const supabase = this.supabaseService.db;
+
+      const emailRedirectTo = this.redirectUri('/auth/callback');
+      const { data, error } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+        options: { emailRedirectTo },
+      });
+      if (error) throw new Error(this.mensajeDeError(error));
+
+      if (data.session) {
+        this._session.set(data.session);
+        await this.syncProfile(data.session.user);
+        this.redirectAfterAuth();
+        return false;
+      }
+      // Sin sesión: Supabase espera la confirmación del correo.
+      return true;
+    } finally {
+      this._isLoading.set(false);
+    }
+  }
+
+  /** Acceso con correo y contraseña. */
+  async signInWithEmail(email: string, password: string): Promise<void> {
+    try {
+      this._isLoading.set(true);
+      this._authError.set(null);
+      const supabase = this.supabaseService.db;
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+      if (error) throw new Error(this.mensajeDeError(error));
+
+      if (data.session) {
+        this._session.set(data.session);
+        await this.syncProfile(data.session.user);
+        this.redirectAfterAuth();
+      }
+    } finally {
+      this._isLoading.set(false);
+    }
+  }
+
+  /**
+   * Envía el correo de recuperación.
+   * No distingue si la dirección existe: quien pregunta no debe poder
+   * averiguar qué correos tienen cuenta.
+   */
+  async sendPasswordReset(email: string): Promise<void> {
+    try {
+      this._isLoading.set(true);
+      this._authError.set(null);
+      const supabase = this.supabaseService.db;
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: this.redirectUri('/auth/reset-password'),
+      });
+      // Un fallo de envío no se expone al usuario para no revelar la existencia
+      // de la cuenta; sí se registra para diagnóstico.
+      if (error) console.warn('resetPasswordForEmail:', error.message);
+    } finally {
+      this._isLoading.set(false);
+    }
+  }
+
+  /**
+   * Canjea el código del enlace de recuperación **sin redirigir**.
+   * El flujo normal de callback lleva al onboarding o al panel; aquí hay que
+   * quedarse en la pantalla para que la persona escriba su contraseña nueva.
+   * Devuelve `true` si quedó una sesión de recuperación utilizable.
+   */
+  async exchangeRecoveryCode(urlStr: string): Promise<boolean> {
+    const supabase = this.supabaseService.db;
+    const parsed = new URL(urlStr.replace('#', '?'));
+    const code = parsed.searchParams.get('code');
+
+    if (code) {
+      const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+      if (!error && data.session) {
+        this._session.set(data.session);
+        return true;
+      }
+    }
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) this._session.set(session);
+    return !!session;
+  }
+
+  /** Establece una contraseña nueva dentro de una sesión de recuperación. */
+  async updatePassword(password: string): Promise<void> {
+    try {
+      this._isLoading.set(true);
+      this._authError.set(null);
+      const supabase = this.supabaseService.db;
+      const { error } = await supabase.auth.updateUser({ password });
+      if (error) throw new Error(this.mensajeDeError(error));
+    } finally {
+      this._isLoading.set(false);
+    }
+  }
+
+  /** URI de retorno según plataforma. */
+  private redirectUri(ruta: string): string {
+    if (Capacitor.isNativePlatform()) {
+      return `${environment.oauth.androidRedirectUri.replace('/auth/callback', '')}${ruta}`;
+    }
+    return typeof window !== 'undefined'
+      ? `${window.location.origin}${ruta}`
+      : `${environment.oauth.webRedirectUri.replace('/auth/callback', '')}${ruta}`;
+  }
+
+  /**
+   * Traduce los errores de Supabase Auth a mensajes en español.
+   * Las credenciales incorrectas y el correo ya registrado comparten una
+   * redacción que no confirma si la dirección tiene cuenta.
+   */
+  private mensajeDeError(error: { message: string; status?: number }): string {
+    const m = error.message.toLowerCase();
+    if (m.includes('invalid login credentials')) {
+      return 'Correo o contraseña incorrectos.';
+    }
+    if (m.includes('email not confirmed')) {
+      return 'Todavía no has confirmado tu correo. Revisa tu bandeja de entrada.';
+    }
+    if (m.includes('user already registered') || m.includes('already been registered')) {
+      return 'Si esa dirección no tiene cuenta, recibirás un correo para confirmarla. Si ya la tienes, inicia sesión.';
+    }
+    if (m.includes('password') && m.includes('at least')) {
+      return 'La contraseña es demasiado corta.';
+    }
+    if (m.includes('rate limit') || m.includes('too many requests') || error.status === 429) {
+      return 'Demasiados intentos. Espera unos minutos antes de volver a probar.';
+    }
+    if (m.includes('unable to validate email') || m.includes('invalid format')) {
+      return 'Revisa el formato del correo.';
+    }
+    return error.message;
+  }
+
+  /**
    * Cierra la sesión activa de forma segura.
    * Limpia almacenamiento seguro de tokens y restablece el estado.
    */
