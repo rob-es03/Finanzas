@@ -120,4 +120,4 @@ Hecho por API sobre `ujalaluhmtwevqhnzivo`:
 
 ## T-033 · Acceso por correo en revisión
 
-Registro, ingreso y recuperación implementados en la rama fix/T-033-auth-correo. El recorrido Angular con correos reales de Resend pasó contra Supabase local. Android queda pendiente por Java 8, SDK y ADB ausentes. [Evidencia](auditorias/2026-11-17-auth-correo.md).
+Registro, ingreso y recuperación implementados en la rama fix/T-033-auth-correo. El recorrido Angular con correos reales de Resend pasó contra Supabase local. Android API 36 también pasó el recorrido con APK de depuración, Supabase local y Resend. [Evidencia](auditorias/2026-11-17-auth-correo.md).

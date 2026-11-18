@@ -19,6 +19,22 @@ El primer intento devolvió `429 over_email_send_rate_limit`. Se elevó únicame
 
 `npm run build` compiló. `npm test -- --watch=false` superó 15 pruebas en 3 archivos, incluidas las pruebas nuevas del evento de recuperación y rechazo de cambio sin sesión de recuperación. `npm run lint` reportó 23 errores preexistentes en dos specs de Auth, onboarding y dashboard. `npm audit --omit=dev` reportó cero hallazgos en dependencias de runtime para esta resolución.
 
-## Validación Android pendiente
+## Validación Android
 
-`gradlew.bat assembleDebug` falló al configurar el plugin de Android porque el equipo ejecutó Java 8. Tampoco se detectó SDK ni ADB. Para probar, instalar Android Studio compatible con Capacitor 8 y SDK API 36, usar el JDK incluido y preparar un emulador o dispositivo. El build de prueba debe usar solo el endpoint local mediante `adb reverse` y una configuración de transporte local de depuración. El allowlist de Supabase local debe incluir `ec.finanzas.app://auth/callback`. Validar registro, confirmación y recuperación con la misma instalación que solicitó cada enlace y cubrir apertura en frío y en caliente. [Entorno Android de Capacitor](https://capacitorjs.com/docs/getting-started/environment-setup)
+Emulador Finanzas_QA_API_36, SDK 36 y Microsoft OpenJDK 21. Se compiló un APK de depuración desde una copia aislada, con HTTP de loopback solo en esa copia y ADB reverse hacia el puerto local 54321. Los callbacks de correo se abrieron mediante Android ACTION_VIEW en la misma instalación que solicitó el enlace. Los mensajes se recibieron realmente en Gmail. La prueba entregó al emulador el callback devuelto por Supabase local y verificó la interfaz nativa mediante su WebView.
+
+La primera corrida completó la confirmación y actualizó la contraseña, pero detectó dos campos con el mismo ID en vistas que Ionic conserva al navegar. Se asignó un ID específico a la nueva contraseña y se repitió el recorrido completo.
+
+Salida de la segunda corrida, con el alias omitido:
+
+```
+BUILD SUCCESSFUL
+Performing Streamed Install
+Success
+Google presente; registro Android HTTP 200; esperando confirmación en Gmail
+Confirmación Gmail: Android abrió onboarding
+Solicitud de recuperación Android HTTP 200; esperando segundo correo
+Recuperación Android HTTP 200; contraseña anterior rechazada; nueva permite entrar
+```
+
+Se verificó que la opción Google sigue visible. El inicio OAuth de Google y la apertura desde una app de correo dentro del emulador quedaron fuera de esta corrida. Se modificó únicamente el allowlist de redirecciones del Supabase local. No se accedió al proyecto de producción.

@@ -37,8 +37,8 @@
             <input id="auth-email" name="email" type="email" autocomplete="email" ngModel email required />
           }
           @if (mode() !== 'recover') {
-            <label for="auth-password">{{ mode() === 'reset' ? 'Nueva contraseña' : 'Contraseña' }}</label>
-            <input id="auth-password" name="password" type="password" ngModel required
+            <label [attr.for]="mode() === 'reset' ? 'auth-new-password' : 'auth-password'">{{ mode() === 'reset' ? 'Nueva contraseña' : 'Contraseña' }}</label>
+            <input [id]="mode() === 'reset' ? 'auth-new-password' : 'auth-password'" name="password" type="password" ngModel required
               [attr.autocomplete]="mode() === 'login' ? 'current-password' : 'new-password'"
               [minlength]="mode() === 'login' ? 1 : 8" />
             @if (mode() === 'register' || mode() === 'reset') {
