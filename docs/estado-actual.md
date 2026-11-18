@@ -75,3 +75,10 @@ Sin coincidencias de claves privadas, tokens `sbp_`/`ghp_`, JWT reales ni `servi
 - **B-4** Lint en rojo (23 errores).
 - **B-5** Preguntas P-01 a P-04 abiertas.
 - **B-6** Los tres agentes están escribiendo sobre la **misma copia de trabajo**, sin worktrees. Durante esta sesión varios archivos compartidos (`docs/estado-actual.md` entre ellos) fueron reescritos por agentes distintos en paralelo. Mientras no haya un remoto y un worktree por agente, el riesgo de pisarse es real.
+
+### Publicación en GitHub · 2026-11-17
+- Repositorio: `https://github.com/rob-es03/Finanzas` · **público**, por decisión del responsable (ver D-016).
+- `main` = `18decbd` (merge del «Initial commit» remoto con el historial local).
+- Ramas subidas: `main`, `agent/claude-initial`, `feat/T-003-auth-google`, `audit/T-010-verificacion-inicial`, `ui/T-030-saldo-claro`.
+- Pull Request abierto, **sin fusionar**: `https://github.com/rob-es03/Finanzas/pull/1`.
+- **Riesgo activo**: el historial público contiene datos personales reales en `finanzas_nicolle.html`.

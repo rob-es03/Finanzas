@@ -47,6 +47,12 @@ Formato: ID · fecha · decisión · motivo · estado · origen.
 
 ## D-015 — El lint en rojo no se corrige por propiedad de archivos
 2026-11-17 · Los 3 errores de lint están en archivos propiedad de Antigravity. Según `AGENTS.md` no se editan sin coordinación: quedan documentados en `docs/estado-actual.md` y asignados a su responsable. **Aceptada.**
+
+## D-016 — El repositorio se publica en GitHub público
+2026-11-17 · `https://github.com/rob-es03/Finanzas`, **visibilidad pública**, por decisión expresa del responsable tras advertirle del riesgo. Consecuencia conocida y aceptada: el historial contiene desde el commit `394e99a` el prototipo `finanzas_nicolle.html` con el nombre real de una persona, sus entidades bancarias y cifras concretas de su economía; ese contenido queda indexable y clonable. Retirarlo exigiría reescribir el historial y rebasar las ramas de los tres agentes. **Aceptada por el responsable.** Pendiente: decidir si se redacta el prototipo más adelante y se coordina la reescritura.
+
+## D-017 — `main` parte de un historial no relacionado
+2026-11-17 · El repositorio remoto se creó con un «Initial commit» (`7bf297e`, solo `README.md`) sin relación con el historial local. Se integró con `merge --allow-unrelated-histories` (`18decbd`) en lugar de forzar el push, para no destruir el commit remoto. **Aceptada.**
 ## Preguntas abiertas
 
 - 2026-11-17 · **P-05, evidencia pendiente.** Se informó que el código de Claude Code está en GitHub. La copia local carece de remoto y las búsquedas no identificaron un PR verificable. **Supuesto provisional:** tratar el scaffold local como una copia independiente de la versión candidata hasta confirmar el enlace del PR y su SHA. El identificador de Supabase es conocido y la consulta de migraciones sigue bloqueada por permisos.
