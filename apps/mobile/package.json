@@ -10,7 +10,8 @@
     "setup:env": "node -e \"const f=require('fs');if(!f.existsSync('src/environments/environment.ts'))f.copyFileSync('src/environments/environment.example.ts','src/environments/environment.ts')\"",
     "build:android": "ng build && npx cap sync android",
     "open:android": "npx cap open android",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "check:env": "node scripts/check-env.mjs"
   },
   "private": true,
   "packageManager": "npm@11.17.0",

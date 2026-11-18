@@ -105,3 +105,10 @@ Reglas:
 - Antes de empezar: `git fetch origin` y `git rebase origin/main` o `git merge origin/main`, según el caso.
 - Para cambiar de tarea, crea un worktree nuevo en lugar de cambiar de rama dentro del tuyo.
 - Al terminar una rama: `git worktree remove <carpeta>` desde el repositorio principal.
+
+## 14. Base de datos compartida (desde 2026-11-17)
+Todo agente apunta al proyecto **`ujalaluhmtwevqhnzivo`** (ver D-018 y `docs/ops/BASE-DE-DATOS.md`). No se levantan bases locales paralelas ni se reescribe `environment.ts` de otro worktree para apuntar a otra parte. Antes de dar por buena una prueba:
+```
+grep supabaseUrl apps/mobile/src/environments/environment.ts
+```
+Si aparece `127.0.0.1` o `localhost`, el resultado no es comparable con el de los demás. Puertos web permitidos para el servidor de desarrollo: **4200** y **4300**; para añadir otro hay que ampliar `uri_allow_list` en Supabase Auth.

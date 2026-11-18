@@ -53,6 +53,9 @@ Formato: ID · fecha · decisión · motivo · estado · origen.
 
 ## D-017 — `main` parte de un historial no relacionado
 2026-11-17 · El repositorio remoto se creó con un «Initial commit» (`7bf297e`, solo `README.md`) sin relación con el historial local. Se integró con `merge --allow-unrelated-histories` (`18decbd`) en lugar de forzar el push, para no destruir el commit remoto. **Aceptada.**
+
+## D-018 — Una sola base compartida: el proyecto en la nube
+2026-11-17 · Todos los agentes apuntan a `ujalaluhmtwevqhnzivo` (PostgreSQL 17.12). Motivo: es donde están aplicadas y verificadas las migraciones, es la única donde funciona el login con Google —la URI de redirección registrada apunta ahí— y el stack local que convivía con ella no era reproducible: sin `supabase/config.toml` versionado y sobre PostgreSQL 16.5. Dos agentes probando contra bases distintas no pueden contrastar resultados; el primer login falló por eso. Detalle y camino para habilitar desarrollo local en `docs/ops/BASE-DE-DATOS.md`. **Aceptada.**
 ## Preguntas abiertas
 
 - 2026-11-17 · **P-05, evidencia pendiente.** Se informó que el código de Claude Code está en GitHub. La copia local carece de remoto y las búsquedas no identificaron un PR verificable. **Supuesto provisional:** tratar el scaffold local como una copia independiente de la versión candidata hasta confirmar el enlace del PR y su SHA. El identificador de Supabase es conocido y la consulta de migraciones sigue bloqueada por permisos.

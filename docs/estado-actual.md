@@ -146,3 +146,8 @@ El puerto 4200 lo ocupa otro agente con un **Supabase local** (`127.0.0.1:54321`
 
 ### T-033 resuelta · 2026-11-17
 Los guards esperaban la sesión con un `setTimeout(100)` o no la esperaban en absoluto. Ahora `AuthService.whenReady()` resuelve la restauración inicial y los tres guards la esperan. Verificado en navegador en los cuatro sentidos (`login`, `welcome` y `dashboard` con sesión; `dashboard` sin ella). Pruebas: **13/13 en verde**. Lint: de 23 a **21 errores**, los restantes en T-032.
+
+### Bases unificadas · 2026-11-17
+Decisión **D-018**: la base compartida es el proyecto en la nube `ujalaluhmtwevqhnzivo`. Razones y camino para habilitar desarrollo local en `docs/ops/BASE-DE-DATOS.md`; regla en `AGENTS.md`, sección 14. Añadido `npm --prefix apps/mobile run check:env`, que falla si el worktree apunta a otra base.
+
+**Pendiente**: el worktree `FINANZAS` (Antigravity) sigue apuntando a `http://127.0.0.1:54321`. No lo reescribí porque es la copia de trabajo de otro agente en uso.
