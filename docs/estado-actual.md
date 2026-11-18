@@ -108,3 +108,12 @@ Historial registrado en `supabase_migrations.schema_migrations`.
 
 ### Lo que esto NO significa
 La base ya sostiene el modelo, pero **el login con Google sigue sin verificarse**: falta configurar el cliente OAuth de Google y los redirect URIs en Supabase Auth. T-003 continúa abierta.
+
+### Configuración OAuth · 2026-11-17
+Hecho por API sobre `ujalaluhmtwevqhnzivo`:
+- `site_url` = `http://localhost:4200`
+- `uri_allow_list` = `http://localhost:4200/auth/callback`, `http://localhost:4200/**`, `ec.finanzas.app://auth/callback`
+- `environment.ts` local escrito con la anon key en los dos worktrees (archivo no versionado; confirmado por `git check-ignore`).
+- Build con la configuración real: ✅.
+
+**Pendiente y bloqueante para T-003**: crear el cliente OAuth en Google Cloud y activar el proveedor Google en Supabase con su client ID y secret (`external_google_enabled` sigue en `false`). Pasos en `docs/ops/OAUTH-GOOGLE.md`.
