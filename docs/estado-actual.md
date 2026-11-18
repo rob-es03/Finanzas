@@ -82,3 +82,29 @@ Sin coincidencias de claves privadas, tokens `sbp_`/`ghp_`, JWT reales ni `servi
 - Ramas subidas: `main`, `agent/claude-initial`, `feat/T-003-auth-google`, `audit/T-010-verificacion-inicial`, `ui/T-030-saldo-claro`.
 - Pull Request abierto, **sin fusionar**: `https://github.com/rob-es03/Finanzas/pull/1`.
 - **Riesgo activo**: el historial público contiene datos personales reales en `finanzas_nicolle.html`.
+
+---
+
+## Migraciones aplicadas en Supabase · 2026-11-17 · Claude Code
+
+Aplicadas con autorización humana expresa sobre `ujalaluhmtwevqhnzivo`, tras comprobar que la base estaba vacía (0 migraciones, 0 tablas).
+
+| Versión | Migración | Resultado |
+|---|---|---|
+| `20261117180000` | `auth_profiles_and_accounts` | aplicada |
+| `20261118000000` | `core_finance_model` | aplicada |
+| `20261118010000` | `revoke_trigger_function_execute` | aplicada |
+
+Historial registrado en `supabase_migrations.schema_migrations`.
+
+### Verificado por ejecución
+- **10 tablas** en `public`, **todas con RLS activada**, **40 políticas** (4 por tabla). Ninguna tabla sin RLS.
+- Vista `account_balances` creada con `security_invoker=true`.
+- `fk_transactions_category` con `ON DELETE SET NULL` acotado a `category_id` (`confdelsetcols = [4]`), de modo que borrar una categoría no intenta anular `user_id`.
+- **Siembra limpia**: `handle_new_user()` ya no contiene `Diners`, `Produbanco` ni `Deprati` (H-1 cerrado).
+- **Prueba funcional** en una transacción revertida: alta de dos usuarios, siembra automática de categorías, dos cuentas, dos movimientos y una transferencia. Saldos obtenidos de la vista: Banco `108000` (100000 + 30000 − 17000 − 5000) y Efectivo `5000`. La transferencia mueve saldo sin contarse como ingreso ni gasto. El `ROLLBACK` dejó la base en 0 filas, comprobado.
+- **Idempotencia**: `core_finance_model` y `revoke_trigger_function_execute` se reejecutaron sin error. La migración original `auth_profiles_and_accounts` **falla al reejecutarse** (`42710: policy "profiles_select_own" already exists`), lo que confirma el hallazgo H-2; queda ya corregida por la segunda migración y no debe volver a ejecutarse.
+- **Asesor de seguridad de Supabase: sin hallazgos.** Los dos avisos iniciales (`handle_new_user()` invocable por `anon` y `authenticated` como `SECURITY DEFINER` desde la API REST) se cerraron con la tercera migración.
+
+### Lo que esto NO significa
+La base ya sostiene el modelo, pero **el login con Google sigue sin verificarse**: falta configurar el cliente OAuth de Google y los redirect URIs en Supabase Auth. T-003 continúa abierta.
