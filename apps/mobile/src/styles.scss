@@ -126,3 +126,56 @@ body {
     cursor: not-allowed;
   }
 }
+
+/* Botón Oficial Google Sign-In */
+.google-sign-in-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 50px;
+  padding: 12px 20px;
+  background-color: #ffffff;
+  color: #1f1f1f;
+  border: 1px solid #747775;
+  border-radius: var(--app-radius-full);
+  font-family: var(--ion-font-family);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: background-color var(--app-transition-fast), border-color var(--app-transition-fast), transform var(--app-transition-fast);
+  outline: none;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: #1f2623;
+    color: #eaf2ee;
+    border-color: #84968d;
+
+    &:hover:not(:disabled) {
+      background-color: #29332f;
+      border-color: var(--ion-color-primary);
+    }
+  }
+
+  &:hover:not(:disabled) {
+    background-color: #f8fafd;
+    border-color: #0b57d0;
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.99);
+  }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+
+  .google-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+}

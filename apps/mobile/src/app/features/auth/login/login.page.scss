@@ -1,8 +1,12 @@
 .login-container {
   --background: var(--app-bg-color);
+  position: relative;
+  overflow: hidden;
 }
 
 .login-content {
+  position: relative;
+  z-index: 1;
   max-width: 440px;
   margin: 0 auto;
   min-height: 100%;
@@ -27,11 +31,14 @@
   height: 44px;
   background: var(--app-surface-color);
   border: 1px solid var(--app-border-color);
-  border-radius: 12px;
+  border-radius: var(--app-radius-sm);
   color: var(--app-text-primary);
   cursor: pointer;
-  box-shadow: var(--app-shadow-card);
-  transition: background-color 0.15s, transform 0.15s;
+  transition: background-color var(--app-transition-fast), transform var(--app-transition-fast);
+
+  &:hover {
+    background-color: rgba(13, 96, 88, 0.05);
+  }
 
   &:active {
     transform: scale(0.95);
@@ -52,13 +59,20 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(79, 70, 229, 0.1);
+  background: rgba(13, 96, 88, 0.1);
   color: var(--ion-color-primary);
-  padding: 4px 10px;
-  border-radius: 9999px;
+  padding: 5px 12px;
+  border-radius: var(--app-radius-full);
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   margin-bottom: 1rem;
+  border: 1px solid rgba(13, 96, 88, 0.2);
+
+  @media (prefers-color-scheme: dark) {
+    background: rgba(114, 213, 192, 0.12);
+    border-color: rgba(114, 213, 192, 0.3);
+  }
 
   svg {
     width: 15px;
@@ -67,16 +81,16 @@
 }
 
 .login-title {
-  font-size: 1.75rem;
+  font-size: 1.85rem;
   font-weight: 800;
   color: var(--app-text-primary);
   margin: 0 0 0.5rem;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
 }
 
 .login-subtitle {
   font-size: 0.925rem;
-  line-height: 1.5;
+  line-height: 1.55;
   color: var(--app-text-secondary);
   margin: 0;
 }
@@ -85,8 +99,8 @@
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  background: rgba(244, 63, 94, 0.1);
-  border: 1px solid rgba(244, 63, 94, 0.3);
+  background: rgba(156, 52, 59, 0.1);
+  border: 1px solid var(--ion-color-danger);
   border-radius: var(--app-radius-md);
   padding: 0.85rem 1rem;
   color: var(--ion-color-danger);
@@ -105,7 +119,7 @@
   background: var(--app-surface-color);
   border: 1px solid var(--app-border-color);
   border-radius: var(--app-radius-lg);
-  box-shadow: var(--app-shadow-elevated);
+  box-shadow: var(--app-shadow-overlay);
   padding: 1.75rem 1.25rem;
   margin-bottom: auto;
 }
@@ -136,15 +150,15 @@
 .notice-body {
   .notice-title {
     margin: 0;
-    font-size: 0.825rem;
-    font-weight: 600;
+    font-size: 0.85rem;
+    font-weight: 700;
     color: var(--app-text-primary);
   }
 
   .notice-desc {
     margin: 4px 0 0;
-    font-size: 0.775rem;
-    line-height: 1.45;
+    font-size: 0.8rem;
+    line-height: 1.5;
     color: var(--app-text-secondary);
   }
 }
@@ -158,10 +172,10 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.75rem;
-  color: var(--app-text-muted);
+  font-size: 0.775rem;
+  color: var(--app-text-secondary);
 }
 
 .dot-separator {
-  color: var(--app-text-muted);
+  color: var(--app-border-color);
 }

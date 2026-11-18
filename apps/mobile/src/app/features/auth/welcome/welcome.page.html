@@ -1,17 +1,22 @@
 <ion-content [fullscreen]="true" class="welcome-container">
+  <!-- Sutil aura de luz ambiental detrás del hero -->
+  <div class="ambient-glow" aria-hidden="true"></div>
+
   <div class="welcome-content">
     <!-- Hero Branding -->
     <header class="hero-section">
       <div class="badge-tag">
-        <span class="badge-dot"></span>
+        <span class="badge-dot" aria-hidden="true"></span>
         <span class="badge-text">Control Financiero Inteligente</span>
       </div>
 
       <div class="logo-wrapper">
-        <div class="logo-circle">
-          <svg class="logo-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-          </svg>
+        <div class="logo-circle-outer">
+          <div class="logo-circle-inner">
+            <svg class="logo-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+          </div>
         </div>
       </div>
 
@@ -21,35 +26,41 @@
       </p>
     </header>
 
-    <!-- Ventajas Clave -->
-    <section class="benefits-grid">
-      <div class="benefit-card border-l-success">
+    <!-- Ventajas Clave estilo Fintech Premium -->
+    <section class="benefits-grid" aria-label="Ventajas clave de la plataforma">
+      <div class="benefit-card">
         <div class="benefit-icon success">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941" /></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941" />
+          </svg>
         </div>
         <div class="benefit-text">
           <h3>Cálculos sin decimales flotantes</h3>
-          <p>Tus saldos se gestionan en centavos enteros exactos.</p>
+          <p>Tus saldos se gestionan en centavos enteros exactos sin acumulación de error.</p>
         </div>
       </div>
 
-      <div class="benefit-card border-l-primary">
+      <div class="benefit-card">
         <div class="benefit-icon primary">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+          </svg>
         </div>
         <div class="benefit-text">
           <h3>Privacidad y RLS estricta</h3>
-          <p>Aislamiento total de tus datos protegidos por Supabase.</p>
+          <p>Aislamiento total por usuario protegido por políticas criptográficas en Supabase.</p>
         </div>
       </div>
 
-      <div class="benefit-card border-l-warning">
+      <div class="benefit-card">
         <div class="benefit-icon warning">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" /></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+          </svg>
         </div>
         <div class="benefit-text">
           <h3>Experiencia nativa Android y Web</h3>
-          <p>Navegación fluida y diseñada para uso ágil con una mano.</p>
+          <p>Navegación fluida, feedback háptico y diseño optimizado para uso ágil con una mano.</p>
         </div>
       </div>
     </section>
@@ -58,11 +69,17 @@
     <footer class="action-footer">
       <button type="button" class="btn-primary-cta" (click)="goToLogin()">
         <span>Continuar al Inicio de Sesión</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+        <svg class="cta-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+        </svg>
       </button>
-      <p class="terms-note">
-        Al continuar, aceptas la gestión privada y segura de tu perfil financiero.
-      </p>
+
+      <div class="security-caption">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="shield-icon">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+        </svg>
+        <span>Acceso protegido por Google OAuth y Supabase Auth</span>
+      </div>
     </footer>
   </div>
 </ion-content>
